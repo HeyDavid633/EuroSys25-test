@@ -1,0 +1,197 @@
+
+custom backend called with FX graph:
+opcode         name    target                                                  args         kwargs
+-------------  ------  ------------------------------------------------------  -----------  --------
+placeholder    l_a_    L_a_                                                    ()           {}
+placeholder    l_b_    L_b_                                                    ()           {}
+call_function  abs_1   <built-in method abs of type object at 0x7652c178c4a0>  (l_a_,)      {}
+call_function  add     <built-in function add>                                 (abs_1, 1)   {}
+call_function  x       <built-in function truediv>                             (l_a_, add)  {}
+call_method    sum_1   sum                                                     (l_b_,)      {}
+call_function  lt      <built-in function lt>                                  (sum_1, 0)   {}
+output         output  output                                                  ((x, lt),)   {}
+
+custom backend called with FX graph:
+opcode         name    target                   args         kwargs
+-------------  ------  -----------------------  -----------  --------
+placeholder    l_b_    L_b_                     ()           {}
+placeholder    l_x_    L_x_                     ()           {}
+call_function  b       <built-in function mul>  (l_b_, -1)   {}
+call_function  mul_1   <built-in function mul>  (l_x_, b)    {}
+output         output  output                   ((mul_1,),)  {}
+
+custom backend called with FX graph:
+opcode         name    target                   args          kwargs
+-------------  ------  -----------------------  ------------  --------
+placeholder    l_x_    L_x_                     ()            {}
+placeholder    l_b_    L_b_                     ()            {}
+call_function  mul     <built-in function mul>  (l_x_, l_b_)  {}
+output         output  output                   ((mul,),)     {}
+Graph Count: 2
+Graph Break Count: 1
+Op Count: 6
+Break Reasons:
+  Break Reason 1:
+    Reason: generic_jump TensorVariable()
+    User Stack:
+      <FrameSummary file /EuroSys25/torch-compile.py, line 26 in bar>
+Ops per Graph:
+  Ops 1:
+    <built-in method abs of type object at 0x7652c178c4a0>
+    <built-in function add>
+    <built-in function truediv>
+    <built-in function lt>
+  Ops 2:
+    <built-in function mul>
+    <built-in function mul>
+Out Guards:
+  Guard 1:
+    Name: ''
+    Source: global
+    Create Function: DEFAULT_DEVICE
+    Guard Types: ['DEFAULT_DEVICE']
+    Code List: ['utils_device.CURRENT_DEVICE == None']
+    Object Weakref: None
+    Guarded Class Weakref: None
+  Guard 2:
+    Name: ''
+    Source: global
+    Create Function: BACKEND_MATCH
+    Guard Types: ['BACKEND_MATCH']
+    Code List: ['___check_current_backend(130092713703984)']
+    Object Weakref: None
+    Guarded Class Weakref: None
+  Guard 3:
+    Name: "G['torch']"
+    Source: global
+    Create Function: FUNCTION_MATCH
+    Guard Types: None
+    Code List: None
+    Object Weakref: None
+    Guarded Class Weakref: None
+  Guard 4:
+    Name: "L['a']"
+    Source: local
+    Create Function: TENSOR_MATCH
+    Guard Types: ['TENSOR_MATCH']
+    Code List: ["hasattr(L['a'], '_dynamo_dynamic_indices') == False"]
+    Object Weakref: <weakref at 0x7651ce193ab0; dead>
+    Guarded Class Weakref: <weakref at 0x76525c39bf10; to 'torch._C._TensorMeta' at 0x577cdeec6ed0 (Tensor)>
+  Guard 5:
+    Name: ''
+    Source: global
+    Create Function: GRAD_MODE
+    Guard Types: None
+    Code List: None
+    Object Weakref: None
+    Guarded Class Weakref: None
+  Guard 6:
+    Name: "G['torch'].abs"
+    Source: global
+    Create Function: FUNCTION_MATCH
+    Guard Types: None
+    Code List: None
+    Object Weakref: None
+    Guarded Class Weakref: None
+  Guard 7:
+    Name: ''
+    Source: global
+    Create Function: DETERMINISTIC_ALGORITHMS
+    Guard Types: None
+    Code List: None
+    Object Weakref: None
+    Guarded Class Weakref: None
+  Guard 8:
+    Name: "L['b']"
+    Source: local
+    Create Function: TENSOR_MATCH
+    Guard Types: ['TENSOR_MATCH']
+    Code List: ["hasattr(L['b'], '_dynamo_dynamic_indices') == False"]
+    Object Weakref: <weakref at 0x765191bbd8a0; dead>
+    Guarded Class Weakref: <weakref at 0x76525c39bf10; to 'torch._C._TensorMeta' at 0x577cdeec6ed0 (Tensor)>
+  Guard 9:
+    Name: ''
+    Source: global
+    Create Function: TORCH_FUNCTION_STATE
+    Guard Types: None
+    Code List: None
+    Object Weakref: None
+    Guarded Class Weakref: None
+  Guard 10:
+    Name: ''
+    Source: shape_env
+    Create Function: SHAPE_ENV
+    Guard Types: None
+    Code List: None
+    Object Weakref: None
+    Guarded Class Weakref: None
+  Guard 11:
+    Name: ''
+    Source: global
+    Create Function: DEFAULT_DEVICE
+    Guard Types: ['DEFAULT_DEVICE']
+    Code List: ['utils_device.CURRENT_DEVICE == None']
+    Object Weakref: None
+    Guarded Class Weakref: None
+  Guard 12:
+    Name: ''
+    Source: global
+    Create Function: BACKEND_MATCH
+    Guard Types: ['BACKEND_MATCH']
+    Code List: ['___check_current_backend(130092713703984)']
+    Object Weakref: None
+    Guarded Class Weakref: None
+  Guard 13:
+    Name: "L['x']"
+    Source: local
+    Create Function: TENSOR_MATCH
+    Guard Types: ['TENSOR_MATCH']
+    Code List: ["hasattr(L['x'], '_dynamo_dynamic_indices') == False"]
+    Object Weakref: <weakref at 0x765191bbf600; dead>
+    Guarded Class Weakref: <weakref at 0x76525c39bf10; to 'torch._C._TensorMeta' at 0x577cdeec6ed0 (Tensor)>
+  Guard 14:
+    Name: ''
+    Source: global
+    Create Function: GRAD_MODE
+    Guard Types: None
+    Code List: None
+    Object Weakref: None
+    Guarded Class Weakref: None
+  Guard 15:
+    Name: "L['b']"
+    Source: local
+    Create Function: TENSOR_MATCH
+    Guard Types: ['TENSOR_MATCH']
+    Code List: ["hasattr(L['b'], '_dynamo_dynamic_indices') == False"]
+    Object Weakref: <weakref at 0x765191bbd8a0; dead>
+    Guarded Class Weakref: <weakref at 0x76525c39bf10; to 'torch._C._TensorMeta' at 0x577cdeec6ed0 (Tensor)>
+  Guard 16:
+    Name: ''
+    Source: global
+    Create Function: DETERMINISTIC_ALGORITHMS
+    Guard Types: None
+    Code List: None
+    Object Weakref: None
+    Guarded Class Weakref: None
+  Guard 17:
+    Name: ''
+    Source: global
+    Create Function: TORCH_FUNCTION_STATE
+    Guard Types: None
+    Code List: None
+    Object Weakref: None
+    Guarded Class Weakref: None
+  Guard 18:
+    Name: ''
+    Source: shape_env
+    Create Function: SHAPE_ENV
+    Guard Types: None
+    Code List: None
+    Object Weakref: None
+    Guarded Class Weakref: None
+Compile Times: TorchDynamo compilation metrics:
+Function                         Runtimes (s)
+-------------------------------  --------------
+_compile.<locals>.compile_inner  0.0078, 0.0051
+OutputGraph.call_user_compiler   0.0000, 0.0000
+

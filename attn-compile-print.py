@@ -12,6 +12,7 @@ import torch.nn.functional as F
 from utils.utils import *
 import torch._dynamo
 import config
+from typing import List
 
 @torch.jit.script
 def Attention_Jit(q, k, v):
@@ -30,6 +31,28 @@ def Attention_Compile(q, k, v):
     new_context_layer_shape = h.size()[:-2] + (q.shape[1]*q.shape[3], )
     hidden_states = h.view(new_context_layer_shape) 
     return hidden_states
+
+def Attention_std(q, k, v):
+    scores = torch.matmul(q, k.transpose(-2, -1)) / (q.shape[3] ** .5)
+    probs = F.softmax(scores, dim=-1)
+    h = torch.matmul(probs, v)
+    
+    # h = torch.matmul(probs, v).permute(0, 2, 1, 3).contiguous() 
+    # new_context_layer_shape = h.size()[:-2] + (q.shape[1]*q.shape[3], )
+    # hidden_states = h.view(new_context_layer_shape) 
+    # return hidden_states
+    return h
+
+def custom_backend(gm: torch.fx.GraphModule, example_inputs: List[torch.Tensor]): #使用用户自定义的后端 输出FX图信息
+    print("\ncustom backend called with FX graph:")
+    gm.graph.print_tabular()
+    return gm.forward
+
+def inspect_backend(gm, sample_inputs):
+    code = gm.print_readable()
+    with open("forward.svg", "wb") as file:
+        file.write(torch.fx.passes.graph_drawer.FxGraphDrawer(gm,'f').get_dot_graph().create_svg())
+    return gm.forward
 
 
 def attn_example():
@@ -61,15 +84,27 @@ def attn_example():
     q = transpose_for_scores(q, head_num, head_size)
     k = transpose_for_scores(k, head_num, head_size)
     v = transpose_for_scores(v, head_num, head_size)
-
     
+    # hidden_states1 = Attention_Jit(q, k, v) 
     
-    hidden_states1 = Attention_Jit(q, k, v) 
-
+    # hidden_states2 = Attention_Compile(q, k, v) 
     
-    hidden_states2 = Attention_Compile(q, k, v) 
+    # TorchInductor 调试日志记录: 打印一般的 TorchInductor 调试信息以及生成的 Triton/C++ 代码
+    # torch._inductor.config.debug = True
+    # TorchInductor 跟踪: 显示每个 TorchInductor 阶段所花费的时间 + 输出代码和图可视化
+    torch._inductor.config.trace.enabled = True
+     
+    torch._dynamo.reset()
+    # attn_compile_default = torch.compile(Attention_std, mode="default", backend=custom_backend)
+    # attn_compile_default = torch.compile(Attention_std, mode="default", backend=inspect_backend) # 错误
+    # attn_compile_default = torch.compile(Attention_std, mode="default")
+    # hidden_states = attn_compile_default(q, k, v) 
     
+    # attn_compile_fullgraph = torch.compile(Attention_std, fullgraph=True) 
+    # hidden_states = attn_compile_fullgraph(q, k, v) 
     
+    attn_compile_reduce = torch.compile(Attention_std, mode="reduce-overhead") 
+    hidden_states = attn_compile_reduce(q, k, v) 
     
                             
 if __name__ == '__main__':

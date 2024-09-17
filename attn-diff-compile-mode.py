@@ -153,9 +153,11 @@ def attn_example():
     
     # 切换mode以前需要reset
     torch._dynamo.reset()
-    attn_compile_max_autotune = torch.compile(Attention_std, mode="max-autotune") # 在4080-laptop上无法执行 -- not enough SMs to use max_autotune_gemm mode
-    
+    # 在4080-laptop上无法执行 -- not enough SMs to use max_autotune_gemm mode
+    attn_compile_max_autotune = torch.compile(Attention_std, mode="max-autotune") 
+    # attn_compile_max_autotune = torch.compile(Attention_std, options ="epilogue_fusion") 
     for i in range(warmup_iters + running_iters):
+        
         if i == warmup_iters:    
             torch.cuda.synchronize()
             t5_start = timeit.default_timer()
@@ -164,9 +166,25 @@ def attn_example():
     t5_end = timeit.default_timer()
     
     torch_compile_time = (t5_end - t5_start) * 1000 / running_iters
-    print("bs:{} | seq:{} | (autotune)compile: {:.3f} ms / iter".format(batch_size, seq_len, torch_compile_time))  
+    print("bs:{} | seq:{} | (autotune)compile: {:.3f} ms / iter\n".format(batch_size, seq_len, torch_compile_time))  
+    
+    
+    # 切换mode以前需要reset --- 重新配置compile
+    torch._dynamo.reset()
+    attn_compile_fullgraph = torch.compile(Attention_std, fullgraph=True) 
+    for i in range(warmup_iters + running_iters):
+        
+        if i == warmup_iters:    
+            torch.cuda.synchronize()
+            t6_start = timeit.default_timer()
+        hidden_states6 = attn_compile_fullgraph(q, k, v) 
+    torch.cuda.synchronize()
+    t6_end = timeit.default_timer()
+    
+    torch_compile_time = (t6_end - t6_start) * 1000 / running_iters
+    print("bs:{} | seq:{} | (fullgraph)compile: {:.3f} ms / iter".format(batch_size, seq_len, torch_compile_time))  
     
                             
+                            
 if __name__ == '__main__':
-        
     attn_example()

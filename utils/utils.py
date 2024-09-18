@@ -3,6 +3,7 @@
 
 import torch 
 import math
+import timeit
 
 def torch_cuda_identify():        
     if torch.cuda.is_available():
@@ -12,6 +13,10 @@ def torch_cuda_identify():
     else:
         print('cuda is not avaliable !')
         return torch.device('cpu')
+    
+def time_stamp_cudasync():
+    torch.cuda.synchronize()
+    return timeit.default_timer()   
     
 def set_dtype(ts: torch.Tensor, dtype: str):
     if dtype == "fp32":

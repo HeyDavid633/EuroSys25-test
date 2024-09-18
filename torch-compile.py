@@ -39,6 +39,9 @@ opt_bar(inp1, -inp2)
 
 
 # Reset since we are using a different backend.
-torch._dynamo.reset()
-explain_output = torch._dynamo.explain(bar)(torch.randn(10), torch.randn(10))
-print(explain_output)
+# torch._dynamo.reset()
+# explain_output = torch._dynamo.explain(bar)(torch.randn(10), torch.randn(10))
+# print(explain_output)
+
+
+print("This version PyTorch aviliable backend:", torch._dynamo.list_backends())

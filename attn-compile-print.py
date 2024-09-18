@@ -86,11 +86,13 @@ def attn_example():
     v = transpose_for_scores(v, head_num, head_size)
     
     # hidden_states1 = Attention_Jit(q, k, v) 
-    
     # hidden_states2 = Attention_Compile(q, k, v) 
     
+    
+    
     # TorchInductor 调试日志记录: 打印一般的 TorchInductor 调试信息以及生成的 Triton/C++ 代码
-    # torch._inductor.config.debug = True
+    # torch._inductor.config.debug = True 实测没什么输出？
+    
     # TorchInductor 跟踪: 显示每个 TorchInductor 阶段所花费的时间 + 输出代码和图可视化
     torch._inductor.config.trace.enabled = True
      
@@ -104,7 +106,7 @@ def attn_example():
     # hidden_states = attn_compile_fullgraph(q, k, v) 
     
     attn_compile_reduce = torch.compile(Attention_std, mode="reduce-overhead") 
-    hidden_states = attn_compile_reduce(q, k, v) 
+    hidden_states = attn_compile_reduce(q, k, v)   # 如果存在循环，并不影响这里的打印效果 --- 毕竟是计算图
     
                             
 if __name__ == '__main__':

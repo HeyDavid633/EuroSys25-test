@@ -16,48 +16,49 @@ import config
 
 def fwd_bert_std():
     hidden_states = input_from_tensor
-    for layer in range(layer_num):
-        input_tensor = hidden_states
+    # for layer in range(layer_num):
+    layer = 0
+    input_tensor = hidden_states
 
-        qkv = torch.matmul(hidden_states, qkv_kernel[layer]) + qkv_bias[layer]
-        q, k, v = qkv.chunk(3, dim=-1)
-        q = transpose_for_scores(q, head_num, head_size)
-        k = transpose_for_scores(k, head_num, head_size)
-        v = transpose_for_scores(v, head_num, head_size)
+    qkv = torch.matmul(hidden_states, qkv_kernel[layer]) + qkv_bias[layer]
+    q, k, v = qkv.chunk(3, dim=-1)
+    q = transpose_for_scores(q, head_num, head_size)
+    k = transpose_for_scores(k, head_num, head_size)
+    v = transpose_for_scores(v, head_num, head_size)
 
-        # ------------------------------------------------------------- Attention start
-        # (B, H, S, W) @ (B, H, W, S) -> (B, H, S, S) -softmax-> (B, H, S, S)
-        scores = torch.matmul(q, k.transpose(-2, -1)) / (head_size ** .5)
-        probs = F.softmax(scores, dim=-1)
-        
-        # (B, H, S, S) @ (B, H, S, W) -> (B, H, S, W) -trans-> (B, S, H, W)
-        h = torch.matmul(probs, v).permute(0, 2, 1, 3).contiguous()
-        
-        # -merge-> (B, S, D)
-        new_context_layer_shape = h.size()[:-2] + (hidden_dim, )
-        hidden_states = h.view(new_context_layer_shape)
-        # ------------------------------------------------------------ Attention End                
-        
-        #attention output projection GEMM
-        hidden_states = torch.matmul(hidden_states, attr_output_kernel[layer]) + attr_output_bias[layer]
-        hidden_states = hidden_states + input_tensor  # 残差连接
-        
-        # layer_Norm
-        hidden_states = F.layer_norm(hidden_states, (hidden_dim, ),
-                                    weight=attr_output_layernorm_gamma[layer], bias=attr_output_layernorm_beta[layer])
-        
-        residual = hidden_states       # 为残差连接做好准备
-        #FFN GEMM 1 + add bias 
-        hidden_states = torch.matmul(hidden_states, inter_kernel[layer]) + inter_bias[layer] 
-        hidden_states = F.gelu(hidden_states)  #激活函数
-        #FFN GEMM 2 + add bias
-        hidden_states = torch.matmul(hidden_states, output_kernel[layer]) + output_bias[layer]  
-        hidden_states = hidden_states + residual  #残差连接
+    # ------------------------------------------------------------- Attention start
+    # (B, H, S, W) @ (B, H, W, S) -> (B, H, S, S) -softmax-> (B, H, S, S)
+    scores = torch.matmul(q, k.transpose(-2, -1)) / (head_size ** .5)
+    probs = F.softmax(scores, dim=-1)
+    # (B, H, S, S) @ (B, H, S, W) -> (B, H, S, W) -trans-> (B, S, H, W)
+    h = torch.matmul(probs, v)
+    # ------------------------------------------------------------ Attention End 
     
-        # layer_Norm
-        hidden_states = F.layer_norm(hidden_states, (hidden_dim, ),  
-                                    weight=output_layernorm_gamma[layer], bias=output_layernorm_beta[layer])  
-        transformer_output[layer] = hidden_states
+    h = h.ermute(0, 2, 1, 3).contiguous()
+    # -merge-> (B, S, D)
+    new_context_layer_shape = h.size()[:-2] + (hidden_dim, )
+    hidden_states = h.view(new_context_layer_shape)
+    
+    #attention output projection GEMM
+    hidden_states = torch.matmul(hidden_states, attr_output_kernel[layer]) + attr_output_bias[layer]
+    hidden_states = hidden_states + input_tensor  # 残差连接
+    
+    # layer_Norm
+    hidden_states = F.layer_norm(hidden_states, (hidden_dim, ),
+                                weight=attr_output_layernorm_gamma[layer], bias=attr_output_layernorm_beta[layer])
+    
+    residual = hidden_states       # 为残差连接做好准备
+    #FFN GEMM 1 + add bias 
+    hidden_states = torch.matmul(hidden_states, inter_kernel[layer]) + inter_bias[layer] 
+    hidden_states = F.gelu(hidden_states)  #激活函数
+    #FFN GEMM 2 + add bias
+    hidden_states = torch.matmul(hidden_states, output_kernel[layer]) + output_bias[layer]  
+    hidden_states = hidden_states + residual  #残差连接
+
+    # layer_Norm
+    hidden_states = F.layer_norm(hidden_states, (hidden_dim, ),  
+                                weight=output_layernorm_gamma[layer], bias=output_layernorm_beta[layer])  
+    transformer_output[layer] = hidden_states
         
         
 
@@ -102,10 +103,10 @@ if __name__ == '__main__':
     # TorchInductor 跟踪: 显示每个 TorchInductor 阶段所花费的时间 + 输出代码和图可视化
     torch._inductor.config.trace.enabled = True
     
-    # # torch.compile --- mode:default
-    # torch._dynamo.reset()
-    # fwd_compile_default = torch.compile(fwd_bert_std, mode="default")
-    # fwd_compile_default()
+    # torch.compile --- mode:default
+    torch._dynamo.reset()
+    fwd_compile_default = torch.compile(fwd_bert_std, mode="default")
+    fwd_compile_default()
         
     # torch.compile --- mode:reduce-overhead
     # torch._dynamo.reset()
@@ -113,9 +114,9 @@ if __name__ == '__main__':
     # fwd_compile_reduce()
     
     # torch.compile --- mode:default + fullgraph
-    torch._dynamo.reset()
-    fwd_compile_fullgraph = torch.compile(fwd_bert_std, fullgraph=True)
-    fwd_compile_fullgraph()
+    # torch._dynamo.reset()
+    # fwd_compile_fullgraph = torch.compile(fwd_bert_std, fullgraph=True)
+    # fwd_compile_fullgraph()
 
     
     

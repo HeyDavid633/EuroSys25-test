@@ -32,6 +32,7 @@ def Attention_Compile(q, k, v):
     hidden_states = h.view(new_context_layer_shape) 
     return hidden_states
 
+# the SDPA part that PyTorch inspect
 def Attention_std(q, k, v):
     scores = torch.matmul(q, k.transpose(-2, -1)) / (q.shape[3] ** .5)
     probs = F.softmax(scores, dim=-1)
@@ -42,6 +43,8 @@ def Attention_std(q, k, v):
     # hidden_states = h.view(new_context_layer_shape) 
     # return hidden_states
     return h
+
+
 
 def custom_backend(gm: torch.fx.GraphModule, example_inputs: List[torch.Tensor]): #使用用户自定义的后端 输出FX图信息
     print("\ncustom backend called with FX graph:")

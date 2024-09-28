@@ -34,7 +34,7 @@ def fwd_bert_std():
     h = torch.matmul(probs, v)
     # ------------------------------------------------------------ Attention End 
     
-    h = h.ermute(0, 2, 1, 3).contiguous()
+    h = h.permute(0, 2, 1, 3).contiguous()
     # -merge-> (B, S, D)
     new_context_layer_shape = h.size()[:-2] + (hidden_dim, )
     hidden_states = h.view(new_context_layer_shape)

@@ -136,6 +136,21 @@ if __name__ == '__main__':
     reduce_time = (t2_end - t2_start) * 1000 / running_iters
     print("fwd bs:{} | seq:{} | reduce  : {:.3f} ms / iter".format(batch_size, seq_len, reduce_time)) 
     
+    
+    # torch.compile --- mode:max-autotune
+    torch._dynamo.reset()
+    fwd_compile_autotune = torch.compile(fwd_bert_std, mode="max-autotune")
+    
+    for i in range(warmup_iters + running_iters):
+        if i == warmup_iters:    
+            t4_start = time_stamp_cudasync()
+        fwd_compile_autotune()
+        
+    t4_end = time_stamp_cudasync()
+    autotune_time = (t4_end - t4_start) * 1000 / running_iters
+    print("fwd bs:{} | seq:{} | autotune: {:.3f} ms / iter".format(batch_size, seq_len, autotune_time)) 
+    
+    
     # torch.compile --- mode:default + fullgraph
     torch._dynamo.reset()
     fwd_compile_fullgraph = torch.compile(fwd_bert_std, fullgraph=True)

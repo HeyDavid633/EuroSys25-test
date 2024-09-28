@@ -7,15 +7,15 @@ buf0.node.kernel = extern_kernels.mm
 
 
 buf1: SchedulerNode(ComputedBuffer)
-buf1.writes = [MemoryDep('buf1', c0, {c0: 2097152})]
-buf1.unmet_dependencies = [MemoryDep('buf0', 1536*c0 + c1, {c0: 4096, c1: 512})]
-buf1.met_dependencies = [MemoryDep('arg2_1', c1, {c0: 4096, c1: 512})]
+buf1.writes = [MemoryDep('buf1', c0, {c0: 8388608})]
+buf1.unmet_dependencies = [MemoryDep('buf0', 1536*c0 + c1, {c0: 16384, c1: 512})]
+buf1.met_dependencies = [MemoryDep('arg2_1', c1, {c0: 16384, c1: 512})]
 buf1.users = [NodeUser(node=ExternKernelSchedulerNode(name='buf4'), can_inplace=False, is_weak=False)]
 buf1.group.device = cuda:0
-buf1.group.iteration = (2097152, 1)
-buf1.sizes = ([4096, 512], [])
+buf1.group.iteration = (8388608, 1)
+buf1.sizes = ([16384, 512], [])
 class buf1_loop_body:
-    var_ranges = {z0: 4096, z1: 512}
+    var_ranges = {z0: 16384, z1: 512}
     index0 = 1536*z0 + z1
     index1 = z1
     index2 = 512*z0 + z1
@@ -31,15 +31,15 @@ class buf1_loop_body:
 
 
 buf2: SchedulerNode(ComputedBuffer)
-buf2.writes = [MemoryDep('buf2', c0, {c0: 2097152})]
-buf2.unmet_dependencies = [MemoryDep('buf0', 1536*c0 + c1 + 512, {c0: 4096, c1: 512})]
-buf2.met_dependencies = [MemoryDep('arg2_1', c1 + 512, {c0: 4096, c1: 512})]
+buf2.writes = [MemoryDep('buf2', c0, {c0: 8388608})]
+buf2.unmet_dependencies = [MemoryDep('buf0', 1536*c0 + c1 + 512, {c0: 16384, c1: 512})]
+buf2.met_dependencies = [MemoryDep('arg2_1', c1 + 512, {c0: 16384, c1: 512})]
 buf2.users = [NodeUser(node=ExternKernelSchedulerNode(name='buf4'), can_inplace=False, is_weak=False)]
 buf2.group.device = cuda:0
-buf2.group.iteration = (2097152, 1)
-buf2.sizes = ([4096, 512], [])
+buf2.group.iteration = (8388608, 1)
+buf2.sizes = ([16384, 512], [])
 class buf2_loop_body:
-    var_ranges = {z0: 4096, z1: 512}
+    var_ranges = {z0: 16384, z1: 512}
     index0 = 1536*z0 + z1 + 512
     index1 = z1 + 512
     index2 = 512*z0 + z1
@@ -55,15 +55,15 @@ class buf2_loop_body:
 
 
 buf3: SchedulerNode(ComputedBuffer)
-buf3.writes = [MemoryDep('buf3', c0, {c0: 2097152})]
-buf3.unmet_dependencies = [MemoryDep('buf0', 1536*c0 + c1 + 1024, {c0: 4096, c1: 512})]
-buf3.met_dependencies = [MemoryDep('arg2_1', c1 + 1024, {c0: 4096, c1: 512})]
+buf3.writes = [MemoryDep('buf3', c0, {c0: 8388608})]
+buf3.unmet_dependencies = [MemoryDep('buf0', 1536*c0 + c1 + 1024, {c0: 16384, c1: 512})]
+buf3.met_dependencies = [MemoryDep('arg2_1', c1 + 1024, {c0: 16384, c1: 512})]
 buf3.users = [NodeUser(node=ExternKernelSchedulerNode(name='buf4'), can_inplace=False, is_weak=False)]
 buf3.group.device = cuda:0
-buf3.group.iteration = (2097152, 1)
-buf3.sizes = ([4096, 512], [])
+buf3.group.iteration = (8388608, 1)
+buf3.sizes = ([16384, 512], [])
 class buf3_loop_body:
-    var_ranges = {z0: 4096, z1: 512}
+    var_ranges = {z0: 16384, z1: 512}
     index0 = 1536*z0 + z1 + 1024
     index1 = z1 + 1024
     index2 = 512*z0 + z1
@@ -103,17 +103,17 @@ buf10.node.kernel = extern_kernels.mm
 
 
 buf11: SchedulerNode(ComputedBuffer)
-buf11.writes = [MemoryDep('buf11', c0, {c0: 4096})]
-buf11.unmet_dependencies = [MemoryDep('buf10', c0, {c0: 2097152})]
+buf11.writes = [MemoryDep('buf11', c0, {c0: 16384})]
+buf11.unmet_dependencies = [MemoryDep('buf10', c0, {c0: 8388608})]
 buf11.met_dependencies = 
-    [   MemoryDep('arg0_1', c0, {c0: 2097152}),
-        MemoryDep('arg4_1', c1, {c0: 4096, c1: 512})]
+    [   MemoryDep('arg0_1', c0, {c0: 8388608}),
+        MemoryDep('arg4_1', c1, {c0: 16384, c1: 512})]
 buf11.users = [NodeUser(node=SchedulerNode(name='buf14'), can_inplace=False, is_weak=False)]
 buf11.group.device = cuda:0
-buf11.group.iteration = (4096, 512)
-buf11.sizes = ([4096], [512])
+buf11.group.iteration = (16384, 512)
+buf11.sizes = ([16384], [512])
 class buf11_loop_body:
-    var_ranges = {z0: 4096, z1: 512}
+    var_ranges = {z0: 16384, z1: 512}
     index0 = 512*z0 + z1
     index1 = z1
     index2 = z0
@@ -137,17 +137,17 @@ class buf11_loop_body:
 
 
 buf12: SchedulerNode(ComputedBuffer)
-buf12.writes = [MemoryDep('buf12', c0, {c0: 4096})]
-buf12.unmet_dependencies = [MemoryDep('buf10', c0, {c0: 2097152})]
+buf12.writes = [MemoryDep('buf12', c0, {c0: 16384})]
+buf12.unmet_dependencies = [MemoryDep('buf10', c0, {c0: 8388608})]
 buf12.met_dependencies = 
-    [   MemoryDep('arg0_1', c0, {c0: 2097152}),
-        MemoryDep('arg4_1', c1, {c0: 4096, c1: 512})]
+    [   MemoryDep('arg0_1', c0, {c0: 8388608}),
+        MemoryDep('arg4_1', c1, {c0: 16384, c1: 512})]
 buf12.users = [NodeUser(node=SchedulerNode(name='buf14'), can_inplace=False, is_weak=False)]
 buf12.group.device = cuda:0
-buf12.group.iteration = (4096, 512)
-buf12.sizes = ([4096], [512])
+buf12.group.iteration = (16384, 512)
+buf12.sizes = ([16384], [512])
 class buf12_loop_body:
-    var_ranges = {z0: 4096, z1: 512}
+    var_ranges = {z0: 16384, z1: 512}
     index0 = 512*z0 + z1
     index1 = z1
     index2 = z0
@@ -171,22 +171,22 @@ class buf12_loop_body:
 
 
 buf14: SchedulerNode(ComputedBuffer)
-buf14.writes = [MemoryDep('buf14', c0, {c0: 2097152})]
+buf14.writes = [MemoryDep('buf14', c0, {c0: 8388608})]
 buf14.unmet_dependencies = 
-    [   MemoryDep('buf10', c0, {c0: 2097152}),
-        MemoryDep('buf11', c0, {c0: 4096}),
-        MemoryDep('buf12', c0, {c0: 4096})]
+    [   MemoryDep('buf10', c0, {c0: 8388608}),
+        MemoryDep('buf11', c0, {c0: 16384}),
+        MemoryDep('buf12', c0, {c0: 16384})]
 buf14.met_dependencies = 
-    [   MemoryDep('arg0_1', c0, {c0: 2097152}),
-        MemoryDep('arg4_1', c1, {c0: 4096, c1: 512}),
-        MemoryDep('arg5_1', c1, {c0: 4096, c1: 512}),
-        MemoryDep('arg6_1', c1, {c0: 4096, c1: 512})]
+    [   MemoryDep('arg0_1', c0, {c0: 8388608}),
+        MemoryDep('arg4_1', c1, {c0: 16384, c1: 512}),
+        MemoryDep('arg5_1', c1, {c0: 16384, c1: 512}),
+        MemoryDep('arg6_1', c1, {c0: 16384, c1: 512})]
 buf14.users = [NodeUser(node=ExternKernelSchedulerNode(name='buf15'), can_inplace=False, is_weak=False), NodeUser(node=SchedulerNode(name='buf18'), can_inplace=False, is_weak=False), NodeUser(node=SchedulerNode(name='buf19'), can_inplace=False, is_weak=False), NodeUser(node=SchedulerNode(name='buf20'), can_inplace=False, is_weak=False), NodeUser(node=SchedulerNode(name='buf21'), can_inplace=True, is_weak=False)]
 buf14.group.device = cuda:0
-buf14.group.iteration = (2097152, 1)
-buf14.sizes = ([4096, 512], [])
+buf14.group.iteration = (8388608, 1)
+buf14.sizes = ([16384, 512], [])
 class buf14_loop_body:
-    var_ranges = {z0: 4096, z1: 512}
+    var_ranges = {z0: 16384, z1: 512}
     index0 = 512*z0 + z1
     index1 = z1
     index2 = z0
@@ -234,15 +234,15 @@ buf15.node.kernel = extern_kernels.mm
 
 
 buf16: SchedulerNode(ComputedBuffer)
-buf16.writes = [MemoryDep('buf16', c0, {c0: 8388608})]
-buf16.unmet_dependencies = [MemoryDep('buf15', c0, {c0: 8388608})]
-buf16.met_dependencies = [MemoryDep('arg8_1', c1, {c0: 4096, c1: 2048})]
+buf16.writes = [MemoryDep('buf16', c0, {c0: 33554432})]
+buf16.unmet_dependencies = [MemoryDep('buf15', c0, {c0: 33554432})]
+buf16.met_dependencies = [MemoryDep('arg8_1', c1, {c0: 16384, c1: 2048})]
 buf16.users = [NodeUser(node=ExternKernelSchedulerNode(name='buf17'), can_inplace=False, is_weak=False)]
 buf16.group.device = cuda:0
-buf16.group.iteration = (8388608, 1)
-buf16.sizes = ([4096, 2048], [])
+buf16.group.iteration = (33554432, 1)
+buf16.sizes = ([16384, 2048], [])
 class buf16_loop_body:
-    var_ranges = {z0: 4096, z1: 2048}
+    var_ranges = {z0: 16384, z1: 2048}
     index0 = 2048*z0 + z1
     index1 = z1
     def body(self, ops):
@@ -281,15 +281,15 @@ buf17.node.kernel = extern_kernels.mm
 
 
 buf18: SchedulerNode(ComputedBuffer)
-buf18.writes = [MemoryDep('buf18', c0, {c0: 4096})]
-buf18.unmet_dependencies = [MemoryDep('buf14', c0, {c0: 2097152}), MemoryDep('buf17', c0, {c0: 2097152})]
-buf18.met_dependencies = [MemoryDep('arg10_1', c1, {c0: 4096, c1: 512})]
+buf18.writes = [MemoryDep('buf18', c0, {c0: 16384})]
+buf18.unmet_dependencies = [MemoryDep('buf14', c0, {c0: 8388608}), MemoryDep('buf17', c0, {c0: 8388608})]
+buf18.met_dependencies = [MemoryDep('arg10_1', c1, {c0: 16384, c1: 512})]
 buf18.users = [NodeUser(node=SchedulerNode(name='buf21'), can_inplace=False, is_weak=False)]
 buf18.group.device = cuda:0
-buf18.group.iteration = (4096, 512)
-buf18.sizes = ([4096], [512])
+buf18.group.iteration = (16384, 512)
+buf18.sizes = ([16384], [512])
 class buf18_loop_body:
-    var_ranges = {z0: 4096, z1: 512}
+    var_ranges = {z0: 16384, z1: 512}
     index0 = 512*z0 + z1
     index1 = z1
     index2 = z0
@@ -313,15 +313,15 @@ class buf18_loop_body:
 
 
 buf19: SchedulerNode(ComputedBuffer)
-buf19.writes = [MemoryDep('buf19', c0, {c0: 4096})]
-buf19.unmet_dependencies = [MemoryDep('buf14', c0, {c0: 2097152}), MemoryDep('buf17', c0, {c0: 2097152})]
-buf19.met_dependencies = [MemoryDep('arg10_1', c1, {c0: 4096, c1: 512})]
+buf19.writes = [MemoryDep('buf19', c0, {c0: 16384})]
+buf19.unmet_dependencies = [MemoryDep('buf14', c0, {c0: 8388608}), MemoryDep('buf17', c0, {c0: 8388608})]
+buf19.met_dependencies = [MemoryDep('arg10_1', c1, {c0: 16384, c1: 512})]
 buf19.users = [NodeUser(node=SchedulerNode(name='buf21'), can_inplace=False, is_weak=False)]
 buf19.group.device = cuda:0
-buf19.group.iteration = (4096, 512)
-buf19.sizes = ([4096], [512])
+buf19.group.iteration = (16384, 512)
+buf19.sizes = ([16384], [512])
 class buf19_loop_body:
-    var_ranges = {z0: 4096, z1: 512}
+    var_ranges = {z0: 16384, z1: 512}
     index0 = 512*z0 + z1
     index1 = z1
     index2 = z0
@@ -345,22 +345,22 @@ class buf19_loop_body:
 
 
 buf21: SchedulerNode(ComputedBuffer)
-buf21.writes = [MemoryDep('buf21', c0, {c0: 2097152})]
+buf21.writes = [MemoryDep('buf21', c0, {c0: 8388608})]
 buf21.unmet_dependencies = 
-    [   MemoryDep('buf14', c0, {c0: 2097152}),
-        MemoryDep('buf17', c0, {c0: 2097152}),
-        MemoryDep('buf18', c0, {c0: 4096}),
-        MemoryDep('buf19', c0, {c0: 4096})]
+    [   MemoryDep('buf14', c0, {c0: 8388608}),
+        MemoryDep('buf17', c0, {c0: 8388608}),
+        MemoryDep('buf18', c0, {c0: 16384}),
+        MemoryDep('buf19', c0, {c0: 16384})]
 buf21.met_dependencies = 
-    [   MemoryDep('arg10_1', c1, {c0: 4096, c1: 512}),
-        MemoryDep('arg11_1', c1, {c0: 4096, c1: 512}),
-        MemoryDep('arg12_1', c1, {c0: 4096, c1: 512})]
+    [   MemoryDep('arg10_1', c1, {c0: 16384, c1: 512}),
+        MemoryDep('arg11_1', c1, {c0: 16384, c1: 512}),
+        MemoryDep('arg12_1', c1, {c0: 16384, c1: 512})]
 buf21.users = [NodeUser(node=OUTPUT, can_inplace=False, is_weak=False)]
 buf21.group.device = cuda:0
-buf21.group.iteration = (2097152, 1)
-buf21.sizes = ([4096, 512], [])
+buf21.group.iteration = (8388608, 1)
+buf21.sizes = ([16384, 512], [])
 class buf21_loop_body:
-    var_ranges = {z0: 4096, z1: 512}
+    var_ranges = {z0: 16384, z1: 512}
     index0 = 512*z0 + z1
     index1 = z1
     index2 = z0

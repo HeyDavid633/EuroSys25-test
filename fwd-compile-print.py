@@ -5,6 +5,9 @@
 # 没有 mask，只是为了看在这种前向的组合下 融合策略情况
 #
 # python fwd-compile-print.py
+# 
+# 打印 更多融合debug信息和依赖图svg
+# TORCH_LOGS=fusion TORCH_COMPILE_DEBUG=1 INDUCTOR_ORIG_FX_SVG=1 INDUCTOR_POST_FUSION_SVG=1 python fwd-compile-print.py
 
 import torch
 import numpy as np
@@ -104,14 +107,19 @@ if __name__ == '__main__':
     torch._inductor.config.trace.enabled = True
     
     # torch.compile --- mode:default
-    torch._dynamo.reset()
-    fwd_compile_default = torch.compile(fwd_bert_std, mode="default")
-    fwd_compile_default()
+    # torch._dynamo.reset()
+    # fwd_compile_default = torch.compile(fwd_bert_std, mode="default")
+    # fwd_compile_default()
+    
+    # torch.compile --- mode:max-autotune
+    # torch._dynamo.reset()
+    # fwd_compile_autotune = torch.compile(fwd_bert_std, mode="max-autotune")
+    # fwd_compile_autotune()
         
     # torch.compile --- mode:reduce-overhead
-    # torch._dynamo.reset()
-    # fwd_compile_reduce = torch.compile(fwd_bert_std, mode="reduce-overhead")
-    # fwd_compile_reduce()
+    torch._dynamo.reset()
+    fwd_compile_reduce = torch.compile(fwd_bert_std, mode="reduce-overhead")
+    fwd_compile_reduce()
     
     # torch.compile --- mode:default + fullgraph
     # torch._dynamo.reset()

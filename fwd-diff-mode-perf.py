@@ -150,21 +150,20 @@ if __name__ == '__main__':
     autotune_time = (t4_end - t4_start) * 1000 / running_iters
     print("fwd bs:{} | seq:{} | autotune: {:.3f} ms / iter".format(batch_size, seq_len, autotune_time)) 
     
-    
+  
     # torch.compile --- mode:default + fullgraph
-    torch._dynamo.reset()
-    fwd_compile_fullgraph = torch.compile(fwd_bert_std, fullgraph=True)
+    # torch._dynamo.reset()
+    # fwd_compile_fullgraph = torch.compile(fwd_bert_std, fullgraph=True)
     
-    for i in range(warmup_iters + running_iters):
-        if i == warmup_iters:    
-            t3_start = time_stamp_cudasync()
-        fwd_compile_fullgraph()
+    # for i in range(warmup_iters + running_iters):
+    #     if i == warmup_iters:    
+    #         t3_start = time_stamp_cudasync()
+    #     fwd_compile_fullgraph()
         
-    t3_end = time_stamp_cudasync()
-    fullgraph_time = (t3_end - t3_start) * 1000 / running_iters
-    print("fwd bs:{} | seq:{} | fullgraph : {:.3f} ms / iter\n".format(batch_size, seq_len, fullgraph_time)) 
+    # t3_end = time_stamp_cudasync()
+    # fullgraph_time = (t3_end - t3_start) * 1000 / running_iters
+    # print("fwd bs:{} | seq:{} | fullgraph : {:.3f} ms / iter\n".format(batch_size, seq_len, fullgraph_time)) 
     
     
-    
-    
+    # print('Max GPU memory: {:.2f} MB'.format(torch.cuda.max_memory_allocated() / (1024 ** 2)))
     

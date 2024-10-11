@@ -1,0 +1,12 @@
+setup.py
+./ops/src/reduction.cpp
+./ops/src/reduction_cuda.cu
+./ops/src/tensoradd.cpp
+./ops/src/tensoradd_cuda.cu
+demo_copy_from_others.egg-info/PKG-INFO
+demo_copy_from_others.egg-info/SOURCES.txt
+demo_copy_from_others.egg-info/dependency_links.txt
+demo_copy_from_others.egg-info/top_level.txt
+ops/__init__.py
+ops/ops_py/__init__.py
+ops/ops_py/package_op.py

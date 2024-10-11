@@ -1,0 +1,6 @@
+Metadata-Version: 2.1
+Name: optimize-demo-with-extension-cpp
+Version: 0.0.1
+Summary: My Demo of PyTorch cpp and CUDA extensions, Auto install
+Author: EuroSys25 by David
+Requires-Dist: torch

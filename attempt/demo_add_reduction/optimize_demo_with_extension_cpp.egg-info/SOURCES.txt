@@ -1,0 +1,12 @@
+setup.py
+ops/__init__.py
+ops/package_op.py
+ops/src/reduction.cpp
+ops/src/reduction_cuda.cu
+ops/src/tensoradd.cpp
+ops/src/tensoradd_cuda.cu
+optimize_demo_with_extension_cpp.egg-info/PKG-INFO
+optimize_demo_with_extension_cpp.egg-info/SOURCES.txt
+optimize_demo_with_extension_cpp.egg-info/dependency_links.txt
+optimize_demo_with_extension_cpp.egg-info/requires.txt
+optimize_demo_with_extension_cpp.egg-info/top_level.txt

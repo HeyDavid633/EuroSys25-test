@@ -5,7 +5,7 @@
 # 尤其注意其中的命名，如何封装了命令以及调用关系 --- 自下而上来写
 import torch 
 import timeit
-from ops import tensoradd_op  # import都是 XXX_op 了，即pytorch已经包装过的接口
+from ops.package_op import tensoradd_op  # import都是 XXX_op 了，即pytorch已经包装过的接口
 # 但从 ops 中有__init__ 从ops_py中 import 了一定 *，所以 不用 
 
 def torch_cuda_identify():        

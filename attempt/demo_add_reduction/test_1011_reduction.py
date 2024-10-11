@@ -4,7 +4,7 @@
 # 理解自下而上的关系， /src 和 /ops 中变量名完全解耦，这里需要盯紧 /ops的注册过程
 import torch 
 import timeit
-from ops import reduction_op 
+from ops.package_op import reduction_op 
 
 def torch_cuda_identify():        
     if torch.cuda.is_available():

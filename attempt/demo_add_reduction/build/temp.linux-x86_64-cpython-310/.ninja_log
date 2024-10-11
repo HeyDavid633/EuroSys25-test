@@ -7,3 +7,9 @@
 3	16642	1728629840368693739	/EuroSys25/attempt/demo_add_reduction/build/temp.linux-x86_64-cpython-310/ops/src/reduction.o	68df13617c27dc9a
 3	3869	1728629844583821666	/EuroSys25/attempt/demo_add_reduction/build/temp.linux-x86_64-cpython-310/ops/src/tensoradd_cuda.o	17ac8d23fd4679c8
 3	18806	1728629859514275071	/EuroSys25/attempt/demo_add_reduction/build/temp.linux-x86_64-cpython-310/ops/src/tensoradd.o	35ac09553e8d9c81
+20	4301	1728646136172030535	/EuroSys25/attempt/demo_add_reduction/build/temp.linux-x86_64-cpython-310/ops/src/reduction_cuda.o	62d3f609e293ffb8
+20	4195	1728646140710157594	/EuroSys25/attempt/demo_add_reduction/build/temp.linux-x86_64-cpython-310/ops/src/tensoradd_cuda.o	939ba49d09aa691a
+20	4250	1728646192050591107	/EuroSys25/attempt/demo_add_reduction/build/temp.linux-x86_64-cpython-310/ops/src/reduction_cuda.o	ec31bb5afb0ebf9d
+20	4128	1728646196517715509	/EuroSys25/attempt/demo_add_reduction/build/temp.linux-x86_64-cpython-310/ops/src/tensoradd_cuda.o	17ac8d23fd4679c8
+20	4253	1728649980012277476	/EuroSys25/attempt/demo_add_reduction/build/temp.linux-x86_64-cpython-310/ops/src/tensoradd_cuda.o	939ba49d09aa691a
+19	4339	1728649984697413071	/EuroSys25/attempt/demo_add_reduction/build/temp.linux-x86_64-cpython-310/ops/src/reduction_cuda.o	62d3f609e293ffb8

@@ -1,0 +1,6 @@
+Metadata-Version: 2.1
+Name: demo_cutlass
+Version: 0.0.1
+Summary: demo_use_cutlass
+Author: EuroSys25 by David
+Requires-Dist: torch

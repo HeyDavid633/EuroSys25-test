@@ -20,6 +20,7 @@ class TensorAdd(Function):
         array1 = array1.float()
         array2 = array2.float()
         ans = array1.new_zeros(array1.shape)
+        
         tensoradd.forward(array1.contiguous(), array2.contiguous(), ans)
 
         ctx.mark_non_differentiable(ans) # if the function is no need for backpropogation

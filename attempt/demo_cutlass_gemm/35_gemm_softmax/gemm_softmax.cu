@@ -57,7 +57,7 @@
 #include "cutlass/util/reference/host/tensor_fill.h"
 #include "cutlass/util/reference/host/error_metrics.h"
 #include "cutlass/util/tensor_view_io.h"
-#include "cutlass/numeric_size.h" // cutlass::bits_to_bytes
+// #include "numeric_size.h" // cutlass::bits_to_bytes
 
 #include "cutlass/layout/matrix.h"
 #include "cutlass/epilogue/thread/linear_combination.h"

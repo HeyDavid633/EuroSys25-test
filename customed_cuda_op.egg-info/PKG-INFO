@@ -1,0 +1,6 @@
+Metadata-Version: 2.1
+Name: customed_cuda_op
+Version: 0.1.0
+Summary: customed operator linked with cutlass implement
+Author: EuroSys25 by David
+Requires-Dist: torch

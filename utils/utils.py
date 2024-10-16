@@ -1,5 +1,4 @@
 # some basic function 
-# Copy from SC24 backup 
 
 import torch 
 import math
@@ -7,9 +6,10 @@ import timeit
 
 def torch_cuda_identify():        
     if torch.cuda.is_available():
-        print('PyTorch version\t:', torch.__version__)
-        print('CUDA version\t:', torch.version.cuda)
-        print('GPU\t\t:',torch.cuda.get_device_name(), '\n', "-" * 50)
+        print(' PyTorch version:', torch.__version__)
+        print(' CUDA version \t:', torch.version.cuda)
+        print(' GPU cuda:({}) \t: {}'.format(torch.cuda.current_device(), torch.cuda.get_device_name()),'\n', "-" * 50)
+        return torch.device('cuda:{}'.format(torch.cuda.current_device()))
     else:
         print('cuda is not avaliable !')
         return torch.device('cpu')

@@ -1,13 +1,14 @@
-# 2024.10.15  多个cutlass算子验证
+# 2024.10.16  多个cutlass算子验证
 #
 # 包含的kernel：
-# 1. cutlass_00_basic_gemm, 
-# 2. cutlass_05_batched_gemm, 
-# 3. cutlass_12_gemm_bias_relu, 
-# 4. cutlass_35_gemm_softmax, 
+# 1. cutlass_00_basic_gemm,     OK
+# 2. cutlass_05_batched_gemm,   OK
+# 3. cutlass_12_gemm_bias_relu, 失败 （非批量的）
+# 4. cutlass_35_gemm_softmax,   失败 （矩阵传入方式奇怪） --- float16精度传入
 # 5. cutlass_37_gemm_layernrom_gemm_fusion,
 # 6. cutlass_41_fusion_multi_head_attention,
 #
+# 上面的实现精度还是 float32的居多
 # 从/cutlass/example/xxx.cu抽取 ---> 对齐接口 ---> 封装调用验证正确性
 
 import torch 
@@ -53,17 +54,19 @@ if __name__ == '__main__':
     # print('\n05 Mean diff: {:.8f}'.format(torch.mean(diff).item()))
     
     
-    # cutlass_35_gemm_softmax
-    mat_A = torch.rand((batch_size ,m, k), dtype=data_type, device=device, requires_grad=False)
-    mat_B = torch.rand((batch_size, k, n), dtype=data_type, device=device, requires_grad=False)
+    # 【失败】cutlass_35_gemm_softmax
+    # 样例程序中的 矩阵传入方式奇怪，不知道怎么操作；调用没有问题
+    # mat_A = torch.rand((batch_size ,m, k), dtype=data_type, device=device, requires_grad=False)
+    # mat_B = torch.rand((batch_size, k, n), dtype=data_type, device=device, requires_grad=False)
     # golden_resultAB = torch.matmul(mat_A, mat_B)
     # my_cutlass_batched_gemm_result = cutlass_05_batched_gemm_op(mat_A, mat_B, alpha, beta) 
     
     # diff = torch.abs(golden_resultAB - my_cutlass_batched_gemm_result)
     # print('\n05 Mean diff: {:.8f}'.format(torch.mean(diff).item()))
-    cutlass_35_gemm_softmax_op(mat_A, mat_B, alpha, beta)
+    # cutlass_35_gemm_softmax_op(mat_A, mat_B, alpha, beta)
 
 
+    
     
     
     

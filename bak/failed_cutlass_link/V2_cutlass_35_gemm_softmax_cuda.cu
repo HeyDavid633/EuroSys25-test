@@ -35,6 +35,10 @@ struct Options
     unsigned seed;
     float alpha;
     float beta;
+    float const *A;
+    float const *B;
+    float *C;
+
 
     Options() : problem_size({16, 24, 64}),
                 batch_count(16),
@@ -45,12 +49,15 @@ struct Options
     }
 
     // Set parameters directly
-    void get_para(int batch_count, int m, int n, int k, float alpha, float beta)
+    void get_para(int batch_count, float const *A, float const *B, float *C, int m, int n, int k, float alpha, float beta)
     {
         this->batch_count = batch_count;
         problem_size = cutlass::gemm::GemmCoord(m, n, k);
         this->alpha = alpha;
         this->beta = beta;
+        this->A = A;
+        this->B = B;
+        this->C = C;
     }
 
     // Returns true if the environment and Toolkit support this
@@ -98,6 +105,10 @@ struct Options
 
 struct Testbed
 {
+    // using ElementA = float;
+    // using ElementB = float;
+    // using ElementC = float; // 不可以用float的类型？--- 否则出错
+
     using ElementA = cutlass::half_t;
     using ElementB = cutlass::half_t;
     using ElementC = cutlass::half_t;
@@ -115,10 +126,6 @@ struct Testbed
     using OperatorClass = cutlass::arch::OpClassTensorOp;
     using ArchTag = cutlass::arch::Sm80;
 
-    // ApplyShape impacts the final Softmax performance a lot.
-    // Set ApplyShape::kColumn to be the next multiple of 32 number that is after
-    // (gemm_N / alignment).
-    // Set ApplyShape::kRow to max(1, 128 / ApplyShape::kColumn).
     using ApplyShape = cutlass::MatrixShape<1, 1024>;
 
     static int const kStages = 3;
@@ -147,13 +154,6 @@ struct Testbed
     using ElementNorm = typename GemmSoftmax::ElementNorm;
     using ElementSum = typename GemmSoftmax::ElementSum;
     using LayoutC = typename GemmSoftmax::LayoutC;
-    using LayoutN = typename GemmSoftmax::LayoutN;
-    using LayoutS = typename GemmSoftmax::LayoutS;
-    using MatrixCoord = typename LayoutC::TensorCoord;
-
-    //
-    // Data members
-    //
 
     Options const &options;
 
@@ -199,10 +199,6 @@ struct Testbed
         block_B.reset(total_elements_B);
         block_C.reset(total_elements_C);
         block_D.reset(total_elements_D);
-        block_Softmax.reset(total_elements_D);
-        block_Norm.reset(total_elements_partial_norm);
-        block_Sum.reset(total_elements_partial_norm);
-
         cutlass::reference::device::BlockFillRandomUniform(
             block_A.get(), total_elements_A, options.seed, ElementA(5), ElementA(-5), 0);
 
@@ -215,6 +211,9 @@ struct Testbed
         cutlass::reference::device::BlockFillRandomUniform(
             block_D.get(), total_elements_D, options.seed + 3, ElementD(5), ElementD(-5), 0);
 
+        block_Norm.reset(total_elements_partial_norm);
+        block_Sum.reset(total_elements_partial_norm);
+        block_Softmax.reset(total_elements_D);
         cutlass::reference::device::BlockFillRandomUniform(
             block_Softmax.get(), total_elements_D, options.seed + 3, ElementSoftmax(5), ElementSoftmax(-5), 0);
     }
@@ -224,7 +223,7 @@ struct Testbed
         GemmSoftmax::Arguments args(
             options.problem_size,
             options.batch_count,
-            {block_A.get(), lda},
+            {block_A.get(), lda},   //此处 模仿05的实现写成{A, lda}但报错，但类型限制到了float16
             {block_B.get(), ldb},
             {block_C.get(), ldc},
             {block_D.get(), ldc},
@@ -250,15 +249,15 @@ struct Testbed
         // Run
         gemm_softmax();
 
-        std::cout << "6666 success !" << std::endl;
+        std::cout << "call success !" << std::endl;
     }
 };
 
-void launcher_gemm_softmax_float(const int batch_count, const float *mat_A, const float *mat_B, float *mat_C, const int M, const int N, const int K, const float alpha, const float beta)
+void launcher_gemm_softmax_float(const int batch_count, const float *A, const float *B, float *C, const int M, const int N, const int K, const float alpha, const float beta)
 {
     // Options parsing
     Options options;
-    options.get_para(batch_count, M, N, K, alpha, beta);
+    options.get_para(batch_count, A, B, C, M, N, K, alpha, beta);
 
     if (!options.supported())
         exit(0);

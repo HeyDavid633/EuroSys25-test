@@ -30,7 +30,7 @@
  **************************************************************************************************/
 /*! \file
     \brief GEMM kernel to support the epilogue visitor model 
-    for customized softmax partial reduction epilogue fusion.
+    for customized layernorm partial reduction epilogue fusion.
 
     This source file will likely be moved to `include/cutlass/gemm/kernel/` in the future once
     its usage has been stabilized. For now, it is included in this example to demonstrate
@@ -79,7 +79,6 @@ public:
 
   using ElementC = typename EpilogueVisitor::ElementOutput;
   using LayoutC = typename Epilogue::Layout;
-  using TensorRefC = TensorRef<ElementC, LayoutC>;
 
   static ComplexTransform const kTransformA = Mma::kTransformA;
   static ComplexTransform const kTransformB = Mma::kTransformB;
@@ -90,9 +89,6 @@ public:
   using WarpShape = typename Mma::Operator::Shape;
   using InstructionShape = typename Mma::Policy::Operator::InstructionShape;
   using ArchTag = typename Mma::ArchTag;
-
-  using ElementNorm = typename EpilogueVisitor::ElementNorm;
-  using ElementSum = typename EpilogueVisitor::ElementSum;
 
   static int const kStages = Mma::kStages;
   static int const kAlignmentA = Mma::IteratorA::AccessType::kElements;
@@ -122,18 +118,9 @@ public:
 
     GemmUniversalMode mode;
     GemmCoord problem_size;
-    int batch_count;
 
     TensorRefA ref_A;
     TensorRefB ref_B;
-    TensorRefC ref_C;
-    TensorRefC ref_D;
-
-    ElementNorm *ptr_Max; 
-    ElementSum  *ptr_Sum;
-
-    int64_t    batch_stride_A;
-    int64_t    batch_stride_B;
 
     typename EpilogueVisitor::Arguments epilogue_visitor;
 
@@ -142,8 +129,7 @@ public:
     //
 
     Arguments():
-      mode(GemmUniversalMode::kGemm),
-      batch_count(1)
+      mode(GemmUniversalMode::kGemm)
     { }
 
 
@@ -151,28 +137,14 @@ public:
     Arguments(
       GemmUniversalMode mode_,
       GemmCoord problem_size_,
-      int batch_count_,
       TensorRefA ref_A_,
       TensorRefB ref_B_,
-      TensorRefC ref_C_,
-      TensorRefC ref_D_,
-      ElementNorm *ptr_Max_,
-      ElementSum *ptr_Sum_,
-      int64_t batch_stride_A_,
-      int64_t batch_stride_B_,
       typename EpilogueVisitor::Arguments epilogue_visitor_
     ):
       mode(mode_),
       problem_size(problem_size_),
-      batch_count(batch_count_),
       ref_A(ref_A_),
       ref_B(ref_B_),
-      ref_C(ref_C_),
-      ref_D(ref_D_),
-      ptr_Max(ptr_Max_),
-      ptr_Sum(ptr_Sum_),
-      batch_stride_A(batch_stride_A_),
-      batch_stride_B(batch_stride_B_),
       epilogue_visitor(epilogue_visitor_)
     {
 
@@ -192,23 +164,12 @@ public:
 
     typename Mma::IteratorA::Params params_A;
     typename Mma::IteratorB::Params params_B;
-    typename EpilogueVisitor::OutputTileIterator::Params params_C;
-    typename EpilogueVisitor::OutputTileIterator::Params params_D;
 
     GemmUniversalMode mode;
-    int batch_count;
     int gemm_k_size;
 
     void * ptr_A;
     void * ptr_B;
-    ElementC * ptr_C;
-    ElementC * ptr_D;
-
-    ElementNorm * ptr_Max;
-    ElementSum * ptr_Sum;
-
-    int64_t batch_stride_A;
-    int64_t batch_stride_B;
 
     typename EpilogueVisitor::Params epilogue_visitor;
 
@@ -221,19 +182,10 @@ public:
       swizzle_log_tile(0),
       params_A(0),
       params_B(0),
-      params_C(0),
-      params_D(0),
-      batch_count(0),
       gemm_k_size(0),
       mode(cutlass::gemm::GemmUniversalMode::kGemm),
       ptr_A(nullptr),
-      ptr_B(nullptr),
-      ptr_C(nullptr),
-      ptr_D(nullptr),
-      ptr_Max(nullptr),
-      ptr_Sum(nullptr),
-      batch_stride_A(0),
-      batch_stride_B(0)
+      ptr_B(nullptr)
     { }
 
 
@@ -244,19 +196,10 @@ public:
       swizzle_log_tile(0),
       params_A(args.ref_A.layout()),
       params_B(args.ref_B.layout()),
-      params_C(args.ref_C.layout()),
-      params_D(args.ref_D.layout()),
       mode(args.mode),
-      batch_count(args.batch_count),
       gemm_k_size(args.problem_size.k()),
       ptr_A(args.ref_A.data()),
       ptr_B(args.ref_B.data()),
-      ptr_C(args.ref_C.data()),
-      ptr_D(args.ref_D.data()),
-      ptr_Max(args.ptr_Max),
-      ptr_Sum(args.ptr_Sum),
-      batch_stride_A(args.batch_stride_A),
-      batch_stride_B(args.batch_stride_B),
       epilogue_visitor(args.epilogue_visitor)
     {
 
@@ -264,14 +207,13 @@ public:
 
       grid_tiled_shape = threadblock_swizzle.get_tiled_shape(
         args.problem_size,
-        {ThreadblockShape::kM, ThreadblockShape::kN, ThreadblockShape::kK},
-        args.batch_count);
+        {ThreadblockShape::kM, ThreadblockShape::kN, ThreadblockShape::kK}, 1);
 
       if (args.mode == GemmUniversalMode::kGemm || args.mode == GemmUniversalMode::kGemmSplitKParallel) {
 
         int const kAlignK = const_max(const_max(128 / sizeof_bits<ElementA>::value, 128 / sizeof_bits<ElementB>::value), 1);
 
-        gemm_k_size = round_up(ceil_div(args.problem_size.k(), args.batch_count), kAlignK);
+        gemm_k_size = round_up(args.problem_size.k(), kAlignK);
 
         if (gemm_k_size) {
           grid_tiled_shape.k() = ceil_div(args.problem_size.k(), gemm_k_size);
@@ -367,8 +309,6 @@ public:
     return can_implement(args.problem_size);
   }
 
-  #define SPLIT_K_ENABLED 1
-
   /// Executes one GEMM
   CUTLASS_DEVICE
   void operator()(Params const &params, SharedStorage &shared_storage) {
@@ -390,31 +330,6 @@ public:
 
     ElementA *ptr_A = static_cast<ElementA *>(params.ptr_A);
     ElementB *ptr_B = static_cast<ElementB *>(params.ptr_B);
-
-
-    #if SPLIT_K_ENABLED
-    //
-    // Fetch pointers based on mode.
-    //
-    if (params.mode == GemmUniversalMode::kGemm ||
-      params.mode == GemmUniversalMode::kGemmSplitKParallel) {
-
-      if (threadblock_tile_offset.k() + 1 < params.grid_tiled_shape.k()) {
-
-        problem_size_k = (threadblock_tile_offset.k() + 1) * params.gemm_k_size;
-      }
-
-      offset_k = threadblock_tile_offset.k() * params.gemm_k_size;
-    }
-    else if (params.mode == GemmUniversalMode::kBatched) {
-      ptr_A += threadblock_tile_offset.k() * params.batch_stride_A;
-      ptr_B += threadblock_tile_offset.k() * params.batch_stride_B;
-    }
-    else if (params.mode == GemmUniversalMode::kArray) {
-      ptr_A = static_cast<ElementA * const *>(params.ptr_A)[threadblock_tile_offset.k()];
-      ptr_B = static_cast<ElementB * const *>(params.ptr_B)[threadblock_tile_offset.k()];
-    }
-    #endif
 
     // Compute initial location in logical coordinates
     cutlass::MatrixCoord tb_offset_A{
@@ -498,14 +413,7 @@ public:
       thread_idx,
       warp_idx,
       lane_idx,
-      params.params_C,
-      params.params_D,
-      params.ptr_C,
-      params.ptr_D,
-      params.ptr_Max,
-      params.ptr_Sum,
-      threadblock_offset,
-      blockIdx.y *params.problem_size.m() );
+      threadblock_offset);
 
     if (params.mode == GemmUniversalMode::kGemm) {
       // Indicate which position in a serial reduction the output operator is currently updating

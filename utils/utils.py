@@ -4,11 +4,12 @@ import torch
 import math
 import timeit
 
-def torch_cuda_identify():        
+def torch_cuda_identify(print_info = True):        
     if torch.cuda.is_available():
-        print(' PyTorch version:', torch.__version__)
-        print(' CUDA version \t:', torch.version.cuda)
-        print(' GPU cuda:({}) \t: {}'.format(torch.cuda.current_device(), torch.cuda.get_device_name()),'\n', "-" * 50)
+        if print_info:
+            print(' PyTorch version:', torch.__version__)
+            print(' CUDA version \t:', torch.version.cuda)
+            print(' GPU cuda:({}) \t: {}'.format(torch.cuda.current_device(), torch.cuda.get_device_name()),'\n', "-" * 50)
         return torch.device('cuda:{}'.format(torch.cuda.current_device()))
     else:
         print('cuda is not avaliable !')

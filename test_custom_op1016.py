@@ -12,7 +12,7 @@
 # 从/cutlass/example/xxx.cu抽取 ---> 对齐接口 ---> 封装调用验证正确性
 
 import torch 
-from ops.package_op import cutlass_00_basic_gemm_op, cutlass_05_batched_gemm_op, cutlass_35_gemm_softmax_op
+from ops.package_op import cutlass_00_basic_gemm_op, cutlass_05_batched_gemm_op
 from utils.utils import torch_cuda_identify, time_stamp_cudasync
 
 if __name__ == '__main__':
@@ -47,11 +47,13 @@ if __name__ == '__main__':
     # 【验证成功】 cutlass_05_batched_gemm
     # mat_A = torch.rand((batch_size ,m, k), dtype=data_type, device=device, requires_grad=False)
     # mat_B = torch.rand((batch_size, k, n), dtype=data_type, device=device, requires_grad=False)
-    # golden_resultAB = torch.matmul(mat_A, mat_B)
-    # my_cutlass_batched_gemm_result = cutlass_05_batched_gemm_op(mat_A, mat_B, alpha, beta) 
+    mat_A = torch.rand((batch_size ,m, k), dtype=data_type, requires_grad=False).cuda()
+    mat_B = torch.rand((batch_size, k, n), dtype=data_type, requires_grad=False).cuda()
+    golden_resultAB = torch.matmul(mat_A, mat_B)
+    my_cutlass_batched_gemm_result = cutlass_05_batched_gemm_op(mat_A, mat_B, alpha, beta) 
     
-    # diff = torch.abs(golden_resultAB - my_cutlass_batched_gemm_result)
-    # print('\n05 Mean diff: {:.8f}'.format(torch.mean(diff).item()))
+    diff = torch.abs(golden_resultAB - my_cutlass_batched_gemm_result)
+    print('\n05 Mean diff: {:.8f}'.format(torch.mean(diff).item()))
     
     
     # 【失败】cutlass_35_gemm_softmax

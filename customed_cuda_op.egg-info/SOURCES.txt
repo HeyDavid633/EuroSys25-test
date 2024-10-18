@@ -11,5 +11,3 @@ ops/src/cutlass_00_basic_gemm.cpp
 ops/src/cutlass_00_basic_gemm_cuda.cu
 ops/src/cutlass_05_batched_gemm.cpp
 ops/src/cutlass_05_batched_gemm_cuda.cu
-ops/src/cutlass_35_gemm_softmax.cpp
-ops/src/cutlass_35_gemm_softmax_cuda.cu

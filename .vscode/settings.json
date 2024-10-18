@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "README": "markdown",
+        "*.cu": "cuda-cpp",
+        "*.cpp": "cpp",
+        "limits": "cpp"
+    }
+}

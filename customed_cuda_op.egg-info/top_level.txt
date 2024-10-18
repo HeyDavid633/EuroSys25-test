@@ -1,4 +1,3 @@
 cutlass_00_basic_gemm
 cutlass_05_batched_gemm
-cutlass_35_gemm_softmax
 ops

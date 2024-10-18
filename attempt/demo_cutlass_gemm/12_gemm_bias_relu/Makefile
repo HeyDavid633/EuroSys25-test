@@ -2,7 +2,7 @@
 NVCC := nvcc
 
 # 定义编译和链接标志
-CFLAGS := -std=c++11 -O3 -I/usr/local/cuda/include -I../ -gencode=arch=compute_89,code=sm_89
+CFLAGS := -std=c++11 -O3 -I/usr/local/cuda/include -I../ -gencode=arch=compute_80,code=sm_80
 LDFLAGS := -L/usr/local/cuda/lib64 -lcudart
 
 # 定义源文件和目标文件

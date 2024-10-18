@@ -11,7 +11,7 @@ from setuptools import find_packages, setup
 from torch.utils.cpp_extension import BuildExtension, CUDAExtension
 
 extra_compile_args = {
-    "nvcc" : ["-O3", "-I/usr/local/cuda/include", "-gencode=arch=compute_89,code=sm_89"] #此处gencode后面的等号不可以省
+    "nvcc" : ["-O3", "-I/usr/local/cuda/include", "-gencode=arch=compute_80,code=sm_80"] #此处gencode后面的等号不可以省
 }
 extra_link_args = []
 

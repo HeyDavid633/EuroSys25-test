@@ -6,8 +6,8 @@ CFLAGS := -std=c++11 -O3 -I/usr/local/cuda/include -I../ -gencode=arch=compute_8
 LDFLAGS := -L/usr/local/cuda/lib64 -lcudart
 
 # 定义源文件和目标文件
-SRC := gemm_softmax.cu
-TARGET := 35_gemm_softmax
+SRC := batched_gemm.cu
+TARGET := 05_batched_gemm
 
 # 默认目标
 all: $(TARGET)

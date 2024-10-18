@@ -62,9 +62,9 @@ void launcher_batched_gemm_float(const int batch_count, const float* mat_A, cons
     int const ldb = N;
     int const ldc = N;
 
-    int const count_A = batch_count * M * lda;
-    int const count_B = batch_count * K * ldb;
-    int const count_C = batch_count * M * ldc;
+    // int const count_A = batch_count * M * lda;
+    // int const count_B = batch_count * K * ldb;
+    // int const count_C = batch_count * M * ldc;
 
     // the memory is batched along M dimension for A, K dimension for B, and M dimension for C
     long long int batch_stride_A = static_cast<long long int>(M) * static_cast<long long int>(lda);

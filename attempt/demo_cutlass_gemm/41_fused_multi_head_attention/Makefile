@@ -6,8 +6,8 @@ CFLAGS := -std=c++11 -O3 -I/usr/local/cuda/include -I../include -I../ -gencode=a
 # LDFLAGS := -L/usr/local/cuda/lib64 -lcudart
 
 # 定义源文件和目标文件
-SRC := gemm_layernorm.cu
-TARGET := 37_gemm_layernorm_gemm_fusion
+SRC := fused_multihead_attention_fixed_seqlen.cu
+TARGET := 41_fused_multihead_attention_fixed_seqlen
 
 # 默认目标
 all: $(TARGET)

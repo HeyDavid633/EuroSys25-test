@@ -11,9 +11,9 @@ import torch._inductor.config
 import torch._functorch.config
 import torch.fx.experimental._config
 
-torch._inductor.config.triton.cudagraphs = True
-torch._inductor.config.trace.enabled = True
 
+torch._functorch.config.debug_partitioner = True
+torch._functorch.config.unlift_effect_tokens = True
 
 
 
@@ -21,41 +21,41 @@ isolate_fails_code_str = None
 
 
 
-# torch version: 2.3.0a0+6ddf5cf85e.nv24.04
-# torch cuda version: 12.4
+# torch version: 2.5.0a0+b465a5843b.nv24.09
+# torch cuda version: 12.6
 # torch git version: Unknown
 
 
 # CUDA Info: 
 # nvcc: NVIDIA (R) Cuda compiler driver 
 # Copyright (c) 2005-2024 NVIDIA Corporation 
-# Built on Thu_Mar_28_02:18:24_PDT_2024 
-# Cuda compilation tools, release 12.4, V12.4.131 
-# Build cuda_12.4.r12.4/compiler.34097967_0 
+# Built on Wed_Aug_14_10:10:22_PDT_2024 
+# Cuda compilation tools, release 12.6, V12.6.68 
+# Build cuda_12.6.r12.6/compiler.34714021_0 
 
 # GPU Hardware Info: 
-# NVIDIA GeForce RTX 4080 Laptop GPU : 1 
+# NVIDIA A100-PCIE-40GB : 1 
 
 
 from torch.nn import *
 class Repro(torch.nn.Module):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
     
     
     def forward(self, arg0_1, arg1_1, arg2_1, arg3_1, arg4_1, arg5_1, arg6_1, arg7_1, arg8_1, arg9_1, arg10_1, arg11_1, arg12_1):
-        view = torch.ops.aten.view.default(arg0_1, [4096, 512])
+        view = torch.ops.aten.view.default(arg0_1, [8192, 512])
         mm = torch.ops.aten.mm.default(view, arg1_1);  view = arg1_1 = None
-        view_1 = torch.ops.aten.view.default(mm, [16, 256, 1536]);  mm = None
+        view_1 = torch.ops.aten.view.default(mm, [8, 1024, 1536]);  mm = None
         add = torch.ops.aten.add.Tensor(view_1, arg2_1);  view_1 = arg2_1 = None
         split = torch.ops.aten.split.Tensor(add, 512, -1);  add = None
         getitem = split[0]
         getitem_1 = split[1]
         getitem_2 = split[2];  split = None
-        view_2 = torch.ops.aten.view.default(getitem, [16, 256, 16, 32]);  getitem = None
-        view_3 = torch.ops.aten.view.default(getitem_1, [16, 256, 16, 32]);  getitem_1 = None
-        view_4 = torch.ops.aten.view.default(getitem_2, [16, 256, 16, 32]);  getitem_2 = None
+        view_2 = torch.ops.aten.view.default(getitem, [8, 1024, 16, 32]);  getitem = None
+        view_3 = torch.ops.aten.view.default(getitem_1, [8, 1024, 16, 32]);  getitem_1 = None
+        view_4 = torch.ops.aten.view.default(getitem_2, [8, 1024, 16, 32]);  getitem_2 = None
         permute_default = torch.ops.aten.permute.default(view_2, [0, 2, 1, 3]);  view_2 = None
         permute_default_1 = torch.ops.aten.permute.default(view_3, [0, 2, 1, 3]);  view_3 = None
         permute_default_2 = torch.ops.aten.permute.default(view_4, [0, 2, 1, 3]);  view_4 = None
@@ -63,10 +63,10 @@ class Repro(torch.nn.Module):
         getitem_7 = _scaled_dot_product_flash_attention_default[0];  _scaled_dot_product_flash_attention_default = None
         permute_4 = torch.ops.aten.permute.default(getitem_7, [0, 2, 1, 3]);  getitem_7 = None
         clone_3 = torch.ops.aten.clone.default(permute_4, memory_format = torch.contiguous_format);  permute_4 = None
-        view_11 = torch.ops.aten.view.default(clone_3, [16, 256, 512]);  clone_3 = None
-        view_12 = torch.ops.aten.view.default(view_11, [4096, 512]);  view_11 = None
+        view_11 = torch.ops.aten.view.default(clone_3, [8, 1024, 512]);  clone_3 = None
+        view_12 = torch.ops.aten.view.default(view_11, [8192, 512]);  view_11 = None
         mm_1 = torch.ops.aten.mm.default(view_12, arg3_1);  view_12 = arg3_1 = None
-        view_13 = torch.ops.aten.view.default(mm_1, [16, 256, 512]);  mm_1 = None
+        view_13 = torch.ops.aten.view.default(mm_1, [8, 1024, 512]);  mm_1 = None
         add_1 = torch.ops.aten.add.Tensor(view_13, arg4_1);  view_13 = arg4_1 = None
         add_2 = torch.ops.aten.add.Tensor(add_1, arg0_1);  add_1 = arg0_1 = None
         convert_element_type_10 = torch.ops.prims.convert_element_type.default(add_2, torch.float32)
@@ -77,12 +77,12 @@ class Repro(torch.nn.Module):
         rsqrt = torch.ops.aten.rsqrt.default(add_3);  add_3 = None
         sub_1 = torch.ops.aten.sub.Tensor(add_2, getitem_4);  add_2 = getitem_4 = None
         mul = torch.ops.aten.mul.Tensor(sub_1, rsqrt);  sub_1 = rsqrt = None
-        mul_1 = torch.ops.aten.mul.Tensor(mul, arg5_1);  mul = arg5_1 = None
-        add_4 = torch.ops.aten.add.Tensor(mul_1, arg6_1);  mul_1 = arg6_1 = None
+        mul_1 = torch.ops.aten.mul.Tensor(mul, arg6_1);  mul = arg6_1 = None
+        add_4 = torch.ops.aten.add.Tensor(mul_1, arg5_1);  mul_1 = arg5_1 = None
         convert_element_type_11 = torch.ops.prims.convert_element_type.default(add_4, torch.float16);  add_4 = None
-        view_14 = torch.ops.aten.view.default(convert_element_type_11, [4096, 512])
+        view_14 = torch.ops.aten.view.default(convert_element_type_11, [8192, 512])
         mm_2 = torch.ops.aten.mm.default(view_14, arg7_1);  view_14 = arg7_1 = None
-        view_15 = torch.ops.aten.view.default(mm_2, [16, 256, 2048]);  mm_2 = None
+        view_15 = torch.ops.aten.view.default(mm_2, [8, 1024, 2048]);  mm_2 = None
         add_5 = torch.ops.aten.add.Tensor(view_15, arg8_1);  view_15 = arg8_1 = None
         convert_element_type_14 = torch.ops.prims.convert_element_type.default(add_5, torch.float32);  add_5 = None
         mul_2 = torch.ops.aten.mul.Tensor(convert_element_type_14, 0.5)
@@ -91,9 +91,9 @@ class Repro(torch.nn.Module):
         add_6 = torch.ops.aten.add.Tensor(erf, 1);  erf = None
         mul_4 = torch.ops.aten.mul.Tensor(mul_2, add_6);  mul_2 = add_6 = None
         convert_element_type_15 = torch.ops.prims.convert_element_type.default(mul_4, torch.float16);  mul_4 = None
-        view_16 = torch.ops.aten.view.default(convert_element_type_15, [4096, 2048]);  convert_element_type_15 = None
+        view_16 = torch.ops.aten.view.default(convert_element_type_15, [8192, 2048]);  convert_element_type_15 = None
         mm_3 = torch.ops.aten.mm.default(view_16, arg9_1);  view_16 = arg9_1 = None
-        view_17 = torch.ops.aten.view.default(mm_3, [16, 256, 512]);  mm_3 = None
+        view_17 = torch.ops.aten.view.default(mm_3, [8, 1024, 512]);  mm_3 = None
         add_7 = torch.ops.aten.add.Tensor(view_17, arg10_1);  view_17 = arg10_1 = None
         add_8 = torch.ops.aten.add.Tensor(add_7, convert_element_type_11);  add_7 = convert_element_type_11 = None
         convert_element_type_18 = torch.ops.prims.convert_element_type.default(add_8, torch.float32)
@@ -104,14 +104,14 @@ class Repro(torch.nn.Module):
         rsqrt_1 = torch.ops.aten.rsqrt.default(add_9);  add_9 = None
         sub_2 = torch.ops.aten.sub.Tensor(add_8, getitem_6);  add_8 = getitem_6 = None
         mul_5 = torch.ops.aten.mul.Tensor(sub_2, rsqrt_1);  sub_2 = rsqrt_1 = None
-        mul_6 = torch.ops.aten.mul.Tensor(mul_5, arg11_1);  mul_5 = arg11_1 = None
-        add_10 = torch.ops.aten.add.Tensor(mul_6, arg12_1);  mul_6 = arg12_1 = None
+        mul_6 = torch.ops.aten.mul.Tensor(mul_5, arg12_1);  mul_5 = arg12_1 = None
+        add_10 = torch.ops.aten.add.Tensor(mul_6, arg11_1);  mul_6 = arg11_1 = None
         convert_element_type_19 = torch.ops.prims.convert_element_type.default(add_10, torch.float16);  add_10 = None
         return (convert_element_type_19,)
         
 def load_args(reader):
-    buf0 = reader.storage(None, 4194304, device=device(type='cuda', index=0), dtype_hint=torch.float16)
-    reader.tensor(buf0, (16, 256, 512), dtype=torch.float16, is_leaf=True)  # arg0_1
+    buf0 = reader.storage(None, 8388608, device=device(type='cuda', index=0), dtype_hint=torch.float16)
+    reader.tensor(buf0, (8, 1024, 512), dtype=torch.float16, is_leaf=True)  # arg0_1
     buf1 = reader.storage(None, 1572864, device=device(type='cuda', index=0), dtype_hint=torch.float16)
     reader.tensor(buf1, (512, 1536), dtype=torch.float16, is_leaf=True)  # arg1_1
     buf2 = reader.storage(None, 3072, device=device(type='cuda', index=0), dtype_hint=torch.float16)
@@ -142,3 +142,6 @@ if __name__ == '__main__':
     from torch._dynamo.repro.after_aot import run_repro
     with torch.no_grad():
         run_repro(mod, load_args, accuracy=False, command='run', save_dir=None, tracing_mode='real', check_str=None)
+        # To run it separately, do 
+        # mod, args = run_repro(mod, load_args, accuracy=False, command='get_args', save_dir=None, tracing_mode='real', check_str=None)
+        # mod(*args)

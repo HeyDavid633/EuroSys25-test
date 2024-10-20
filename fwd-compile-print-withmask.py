@@ -71,7 +71,7 @@ if __name__ == '__main__':
     batch_size = config.BATCH_SIZE
     head_size = config.HEAD_DIM # head_dim aka. head_size
     seq_len = config.SEQ_LEN
-    head_num = config.HEADS_NUM
+    head_num = config.HEAD_NUM
     layer_num = config.LAYER_NUM
     hidden_dim = head_num * head_size
 

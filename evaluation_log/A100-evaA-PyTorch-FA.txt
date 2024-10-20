@@ -1,0 +1,32 @@
+ PyTorch version: 2.5.0a0+b465a5843b.nv24.09
+ CUDA version 	: 12.6
+ GPU cuda:(0) 	: NVIDIA A100-PCIE-40GB 
+ --------------------------------------------------
+Attn base time cost:
+bs:8	| seqlen:128	| 0.16 ms / iter
+bs:8	| seqlen:256	| 0.27 ms / iter
+bs:8	| seqlen:512	| 0.83 ms / iter
+bs:8	| seqlen:1024	| 2.30 ms / iter
+bs:8	| seqlen:2048	| 12.23 ms / iter
+bs:8	| seqlen:4096	| 41.25 ms / iter
+bs:16	| seqlen:128	| 0.17 ms / iter
+bs:16	| seqlen:256	| 0.36 ms / iter
+bs:16	| seqlen:512	| 1.21 ms / iter
+bs:16	| seqlen:1024	| 4.57 ms / iter
+bs:16	| seqlen:2048	| 24.62 ms / iter
+bs:16	| seqlen:4096	| 83.29 ms / iter
+Flash-Attn time cost:
+bs:8	| seqlen:128	| 0.075 ms / iter
+bs:8	| seqlen:256	| 0.073 ms / iter
+bs:8	| seqlen:512	| 0.070 ms / iter
+bs:8	| seqlen:1024	| 0.193 ms / iter
+bs:8	| seqlen:2048	| 0.729 ms / iter
+bs:8	| seqlen:4096	| 2.764 ms / iter
+bs:8	| seqlen:8192	| 10.688 ms / iter
+bs:16	| seqlen:128	| 0.072 ms / iter
+bs:16	| seqlen:256	| 0.069 ms / iter
+bs:16	| seqlen:512	| 0.114 ms / iter
+bs:16	| seqlen:1024	| 0.395 ms / iter
+bs:16	| seqlen:2048	| 1.439 ms / iter
+bs:16	| seqlen:4096	| 5.547 ms / iter
+bs:16	| seqlen:8192	| 21.237 ms / iter

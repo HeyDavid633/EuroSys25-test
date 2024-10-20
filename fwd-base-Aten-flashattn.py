@@ -45,7 +45,7 @@ def fwd_bert_std_Aten():
     convert_element_type_11 = torch.ops.prims.convert_element_type.default(add_4, torch.float16)
     view_14 = torch.ops.aten.view.default(convert_element_type_11, [batch_size * seq_len, hidden_dim])
     mm_2 = torch.ops.aten.mm.default(view_14, arg7_1)
-    view_15 = torch.ops.aten.view.default(mm_2, [batch_size, seq_len, seq_len * 2])
+    view_15 = torch.ops.aten.view.default(mm_2, [batch_size, seq_len, hidden_dim * 4])
     add_5 = torch.ops.aten.add.Tensor(view_15, arg8_1)
     convert_element_type_14 = torch.ops.prims.convert_element_type.default(add_5, torch.float32)
     mul_2 = torch.ops.aten.mul.Tensor(convert_element_type_14, 0.5)
@@ -54,7 +54,7 @@ def fwd_bert_std_Aten():
     add_6 = torch.ops.aten.add.Tensor(erf, 1)
     mul_4 = torch.ops.aten.mul.Tensor(mul_2, add_6)
     convert_element_type_15 = torch.ops.prims.convert_element_type.default(mul_4, torch.float16)
-    view_16 = torch.ops.aten.view.default(convert_element_type_15, [batch_size * seq_len, seq_len * 2])
+    view_16 = torch.ops.aten.view.default(convert_element_type_15, [batch_size * seq_len, hidden_dim * 4])
     mm_3 = torch.ops.aten.mm.default(view_16, arg9_1)
     view_17 = torch.ops.aten.view.default(mm_3, [batch_size, seq_len, hidden_dim])
     add_7 = torch.ops.aten.add.Tensor(view_17, arg10_1)
@@ -81,7 +81,7 @@ if __name__ == '__main__':
     
     head_size = config.HEAD_DIM   # head_dim aka. head_size
     seq_len = config.SEQ_LEN
-    head_num = config.HEADS_NUM
+    head_num = config.HEAD_NUM
     batch_size = config.BATCH_SIZE # (8k) batch_size * seq_len / seq_len
     data_type = torch.float16
     

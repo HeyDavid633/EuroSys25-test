@@ -6,7 +6,7 @@ TIME_NOW = datetime.now().strftime(DATE_FORMAT)
 
 
 WARMUP_TIME = 20
-RUNNING_TIME = 100
+RUNNING_TIME = 20
 
 # hyperparameter
 # BATCH_SIZE = 1
@@ -23,4 +23,4 @@ MASK_ID = 1 #
 
 LAYER_NUM = 1
 AVG_SEQ_LEN = -1
-DATA_TYPE = 'fp16'
+DATA_TYPE = "fp16"

@@ -1,9 +1,13 @@
-# 10.19 fwd-Aten-withmask.py 
-# 无注释纯净版 --- 这个版本里加mask
+# 10.20 evaB 测试脚本
+# 
+# Naive Pytorch  |  Torch.compile |  TVM (跑求不通！)
+# batch_size 8 16
+# seqlen: 128 256 512 1024 2048 4096 （8192）
+# 
 
 import torch
 from utils.utils import torch_cuda_identify, time_stamp_cudasync, seqlen_to_mask
-from utils.masks import seqlen_to_mask, generate_triangle_mask, generate_strided_mask, generate_fixed_mask, atomic_a_global, atomic_b_band, atomic_c_dilated, atomic_d_block
+from utils.masks import seqlen_to_mask, generate_triangle_mask
 import config
 
 def fwd_bert_std_ATen():
@@ -73,7 +77,7 @@ def fwd_bert_std_ATen():
     convert_element_type_12 = torch.ops.prims.convert_element_type.default(add_4, torch.float16)
     view_14 = torch.ops.aten.view.default(convert_element_type_12, [batch_size * seq_len, hidden_dim])
     mm_2 = torch.ops.aten.mm.default(view_14, arg8)            # mm 3
-    view_15 = torch.ops.aten.view.default(mm_2, [batch_size, seq_len, seq_len * 2])
+    view_15 = torch.ops.aten.view.default(mm_2, [batch_size, seq_len, hidden_dim * 4])
     add_5 = torch.ops.aten.add.Tensor(view_15, arg9)
     convert_element_type_15 = torch.ops.prims.convert_element_type.default(add_5, torch.float32)
     mul_3 = torch.ops.aten.mul.Tensor(convert_element_type_15, 0.5)
@@ -82,7 +86,7 @@ def fwd_bert_std_ATen():
     add_6 = torch.ops.aten.add.Tensor(erf, 1)
     mul_5 = torch.ops.aten.mul.Tensor(mul_3, add_6)
     convert_element_type_16 = torch.ops.prims.convert_element_type.default(mul_5, torch.float16)
-    view_16 = torch.ops.aten.view.default(convert_element_type_16, [batch_size * seq_len, seq_len * 2])
+    view_16 = torch.ops.aten.view.default(convert_element_type_16, [batch_size * seq_len, hidden_dim * 4])
     mm_3 = torch.ops.aten.mm.default(view_16, arg10)           # mm 4
     view_17 = torch.ops.aten.view.default(mm_3, [batch_size, seq_len, hidden_dim])
     add_7 = torch.ops.aten.add.Tensor(view_17, arg11)
@@ -103,7 +107,7 @@ def fwd_bert_std_ATen():
 
 
 if __name__ == '__main__':
-    device = torch_cuda_identify(print_info=False)
+    device = torch_cuda_identify(print_info=True)
     
     torch.manual_seed(0)
     
@@ -119,50 +123,72 @@ if __name__ == '__main__':
     running_iters = config.RUNNING_TIME
     
     
-    # 4类Atom mask叠加组合成5种Mask, 对应的mask_id
-    # 0-lower triangle, 1-strided, 2-fixed, 3-sliding_windows, 4-dilated_sliding, 5-global_sliding
-    avg_seq_len = seq_len
-    low, high = (2 * avg_seq_len - seq_len, seq_len + 1)
-    input_lens = torch.randint(low=low, high=high, size=(batch_size,))
-    seqlen_mask = seqlen_to_mask(input_lens, seq_len)
-    attr_mask   = torch.tile(seqlen_mask, dims=(seq_len,)).reshape(batch_size, seq_len, seq_len)
-    
-    lower_triangle_mask = generate_triangle_mask(attr_mask)
-    strided_mask = generate_strided_mask(attr_mask)  # a+d
-    fixed_mask = generate_fixed_mask(attr_mask)      # b+c
-    sliding_windows = atomic_b_band(attr_mask)       #b
-    dilated_sliding = atomic_c_dilated(attr_mask)    #c
-    global_sliding = (atomic_a_global(attr_mask) | atomic_b_band(attr_mask)).float()  # a + b
-    
+    for batch_test in [16]:
+        batch_size = batch_test
+        for seqlen_test in [128, 256, 512, 1024, 2048]: # 4096 的时候爆显存了
+        # for seqlen_test in [1024]:
+            seq_len = seqlen_test
+        
+            # 4类Atom mask叠加组合成5种Mask, 对应的mask_id
+            # 0-lower triangle, 1-strided, 2-fixed, 3-sliding_windows, 4-dilated_sliding, 5-global_sliding
+            avg_seq_len = seq_len
+            low, high = (2 * avg_seq_len - seq_len, seq_len + 1)
+            input_lens = torch.randint(low=low, high=high, size=(batch_size,))
+            seqlen_mask = seqlen_to_mask(input_lens, seq_len)
+            attr_mask   = torch.tile(seqlen_mask, dims=(seq_len,)).reshape(batch_size, seq_len, seq_len)
+            
+            lower_triangle_mask = generate_triangle_mask(attr_mask)
+            mask = lower_triangle_mask.to(torch.float16).cuda()
+            
+            # para
+            arg0 = torch.rand((batch_size, seq_len, hidden_dim), device=device, dtype=torch.float16)
+            arg1 = torch.rand((hidden_dim, hidden_dim * 3), device=device, dtype=torch.float16)
+            arg2 = torch.rand((hidden_dim * 3, ), device=device, dtype=torch.float16)
+            arg3 = mask
+            arg4 = torch.rand((hidden_dim, hidden_dim), device=device, dtype=torch.float16)
+            arg5 = torch.rand((hidden_dim, ), device=device, dtype=torch.float16)
+            arg6 = torch.rand((hidden_dim, ), device=device, dtype=torch.float16)
+            arg7 = torch.rand((hidden_dim, ), device=device, dtype=torch.float16)
+            arg8 = torch.rand((hidden_dim, hidden_dim * 4), device=device, dtype=torch.float16)
+            arg9 = torch.rand((hidden_dim * 4, ), device=device, dtype=torch.float16)
+            arg10 = torch.rand((hidden_dim * 4, hidden_dim), device=device, dtype=torch.float16)
+            arg11 = torch.rand((hidden_dim, ), device=device, dtype=torch.float16)
+            arg12 = torch.rand((hidden_dim, ), device=device, dtype=torch.float16)
+            arg13 = torch.rand((hidden_dim, ), device=device, dtype=torch.float16)
 
-    mask_name_list = ['Lower_triangle_mask', 'Strided_mask', 'Fixed_mask', 'Sliding_windows', 'Dilated_sliding', 'Global_sliding']
-    mask_matrix_list = [lower_triangle_mask, strided_mask, fixed_mask, sliding_windows, dilated_sliding, global_sliding]
-    mask_name = mask_name_list[mask_id]
-    mask = mask_matrix_list[mask_id].to(torch.float16).cuda()
-    
-    # para
-    arg0 = torch.rand((batch_size, seq_len, hidden_dim), device=device, dtype=torch.float16)
-    arg1 = torch.rand((hidden_dim, hidden_dim * 3), device=device, dtype=torch.float16)
-    arg2 = torch.rand((hidden_dim * 3, ), device=device, dtype=torch.float16)
-    arg3 = mask
-    arg4 = torch.rand((hidden_dim, hidden_dim), device=device, dtype=torch.float16)
-    arg5 = torch.rand((hidden_dim, ), device=device, dtype=torch.float16)
-    arg6 = torch.rand((hidden_dim, ), device=device, dtype=torch.float16)
-    arg7 = torch.rand((hidden_dim, ), device=device, dtype=torch.float16)
-    arg8 = torch.rand((hidden_dim, hidden_dim * 4), device=device, dtype=torch.float16)
-    arg9 = torch.rand((hidden_dim * 4, ), device=device, dtype=torch.float16)
-    arg10 = torch.rand((hidden_dim * 4, hidden_dim), device=device, dtype=torch.float16)
-    arg11 = torch.rand((hidden_dim, ), device=device, dtype=torch.float16)
-    arg12 = torch.rand((hidden_dim, ), device=device, dtype=torch.float16)
-    arg13 = torch.rand((hidden_dim, ), device=device, dtype=torch.float16)
+            
+            for iter in range(warmup_iters + running_iters):
+                if iter == warmup_iters:
+                    t0_start = time_stamp_cudasync()
+                output = fwd_bert_std_ATen()
+            t0_end = time_stamp_cudasync()    
+            
+            print("Naive  PyTorch | bs:{}\t| seqlen:{}\t| {:.2f}\tms / iter".format(batch_size, seq_len, (t0_end - t0_start) * 1000 / running_iters)) 
 
+
+            torch._dynamo.reset()
+            fwd_compile_autotune = torch.compile(fwd_bert_std_ATen, mode="max-autotune")
+        
+            for iter in range(warmup_iters + running_iters):
+                if iter == warmup_iters:
+                    t1_start = time_stamp_cudasync()
+                output = fwd_compile_autotune()
+            t1_end = time_stamp_cudasync()    
+            
+            print("Torch Autotune | bs:{}\t| seqlen:{}\t| {:.2f}\tms / iter".format(batch_size, seq_len, (t1_end - t1_start) * 1000 / running_iters)) 
+    
+    # 注意万万不可pip install apache-tvm，否则无法启用GPU 
+    # aten的算子无法被tvm操作
+    # torch._dynamo.reset()
+    # fwd_backend_tvm = torch.compile(fwd_bert_std_ATen, mode="default", backend='tvm')
    
-    for iter in range(warmup_iters + running_iters):
-        if iter == warmup_iters:
-            t0_start = time_stamp_cudasync()
-        output = fwd_bert_std_ATen()
-    t0_end = time_stamp_cudasync()    
+    # for iter in range(warmup_iters + running_iters):
+    #     if iter == warmup_iters:
+    #         t2_start = time_stamp_cudasync()
+    #     output = fwd_backend_tvm()
+    # t2_end = time_stamp_cudasync()    
+    
+    # print("Backend   TVM | bs:{}\t| seqlen:{}\t| {:.2f}\tms / iter".format(batch_size, seq_len, (t2_end - t2_start) * 1000 / running_iters)) 
     
     
-    print("{} | bs:{} | seqlen:{} | Aten Base time:  \t{:.2f} ms / iter".format(mask_name, batch_size, seq_len, (t0_end - t0_start) * 1000 / running_iters)) 
     

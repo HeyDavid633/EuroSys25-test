@@ -1,5 +1,5 @@
 # 9.15 base-fwd.py
-# 文件内容上完全同 SC24的准备工作base1.py
+# 文件内容上修改了一点 SC24的准备工作base1.py
 # 完整的前向bert计算流程，以此为基准不作变动
 #
 # python base-fwd.py
@@ -10,20 +10,9 @@ import torch
 import numpy as np
 import random
 import torch.nn.functional as F
+from utils.utils import torch_cuda_identify, time_stamp_cudasync, seqlen_to_mask, set_dtype
+from utils.masks import generate_triangle_mask, generate_strided_mask, generate_fixed_mask
 
-def sequence_mask(lengths, max_len=None, is_2d=True):
-    batch_size = lengths.numel()
-    max_len = max_len or lengths.max()
-    mask = (torch.arange(0, max_len, device=lengths.device)
-            .type_as(lengths)
-            .repeat(batch_size, 1)
-            .lt(lengths.unsqueeze(1)))
-    if is_2d:
-        return mask
-    else:
-        mask = mask.view(-1, 1, 1, max_len)
-        m2 = mask.transpose(2, 3)
-        return mask * m2
 
 def transpose_for_scores(x, n_heads, head_size):
     # (B, S, D) -split-> (B, S, H, W) -trans-> (B, H, S, W)
@@ -34,13 +23,6 @@ def transpose_for_scores(x, n_heads, head_size):
     # x的维度变化 (batch_size, seq_len, hidden_dim) --- (batch_size, head_num, seq_len, head_size)
     # 自动的拆开了 最后一个维度 hidden_dim
     return x.permute(0, 2, 1, 3)
-
-def set_dtype(ts: torch.Tensor, dtype: str):
-    if dtype == "fp32":
-        return ts.float()
-    elif dtype == "fp16":
-        return ts.half()
-    raise RuntimeError(f"Unsupported dtype {dtype}")
 
 
 def bert_example(args):
@@ -63,19 +45,18 @@ def bert_example(args):
     print("-"*21, "Argument", "-"*21)
     
 
-    if avg_seq_len > 0:     
-        mem_seq_lens = torch.ones((batch_size,)) * avg_seq_len
-        mem_seq_lens = mem_seq_lens.to(torch.int32).cuda()
-    elif avg_seq_len == -1:
-        mem_seq_lens = torch.randint(1, seq_len + 1, (batch_size,), dtype=torch.int32).cuda()
-    else:
-        raise ValueError("wrong avg_seq_len")
+    # 4类Atom mask叠加组合成5种Mask
+    avg_seq_len = seq_len
+    low, high = (2 * avg_seq_len - seq_len, seq_len + 1)
+    input_lens = torch.randint(low=low, high=high, size=(batch_size,))
+    seqlen_mask = seqlen_to_mask(input_lens, seq_len)
+    attr_mask   = set_dtype(torch.tile(seqlen_mask, dims=(seq_len,)).reshape(batch_size, seq_len, seq_len).cuda(), dtype)
     
-    mask = set_dtype(sequence_mask(mem_seq_lens, seq_len, False), dtype)   
-    output_mask = sequence_mask(mem_seq_lens, seq_len).to(mask.dtype).unsqueeze(-1)
+    lower_triangle_mask = generate_triangle_mask(attr_mask).cuda()
+    strided_mask = generate_strided_mask(attr_mask).cuda()
+    fixed_mask = generate_fixed_mask(attr_mask).cuda()
     
-    print("mask.shape", mask.shape)
-
+    mask = lower_triangle_mask
 
     input_from_tensor           = set_dtype(torch.empty(batch_size, seq_len, hidden_dim).uniform_(-0.4, 0.4).cuda(), dtype)
     qkv_kernel                  = [set_dtype(torch.zeros(hidden_dim, hidden_dim * 3).uniform_(-0.4, 0.4).cuda(), dtype) for _ in range(layer_num)]
@@ -96,7 +77,7 @@ def bert_example(args):
     
     
     # with torch.no_grad():
-    warmup_iters = 10
+    warmup_iters = 20
     iters = 100
     for i in range(warmup_iters + iters):
         if i == warmup_iters:    
@@ -119,7 +100,7 @@ def bert_example(args):
             # ------------------------------------------------------------- Attention start
             # (B, H, S, W) @ (B, H, W, S) -> (B, H, S, S) -softmax-> (B, H, S, S)
             scores = torch.matmul(q, k.transpose(-2, -1)) / (head_size ** .5)
-            scores -= 10000.0 * (1.0 - mask)
+            scores -= 10000.0 * (1.0 - mask.unsqueeze(1))
             probs = F.softmax(scores, dim=-1)
             
             # (B, H, S, S) @ (B, H, S, W) -> (B, H, S, W) -trans-> (B, S, H, W)

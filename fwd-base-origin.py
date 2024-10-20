@@ -58,9 +58,9 @@ def bert_example(args):
     
     dtype = "fp32"
 
-    # for key in args:
-    #     print("{:13} : {:5} ".format(key, args[key]))
-    # print("-"*21, "Argument", "-"*21)
+    for key in args:
+        print("{:13} : {:5} ".format(key, args[key]))
+    print("-"*21, "Argument", "-"*21)
     
 
     if avg_seq_len > 0:     
@@ -74,7 +74,7 @@ def bert_example(args):
     mask = set_dtype(sequence_mask(mem_seq_lens, seq_len, False), dtype)   
     output_mask = sequence_mask(mem_seq_lens, seq_len).to(mask.dtype).unsqueeze(-1)
     
-    # print("mask.shape", mask.shape)
+    print("mask.shape", mask.shape)
 
 
     input_from_tensor           = set_dtype(torch.empty(batch_size, seq_len, hidden_dim).uniform_(-0.4, 0.4).cuda(), dtype)
@@ -165,11 +165,11 @@ def bert_example(args):
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('batch_size', type=int, default=8, help='batch size')
-    parser.add_argument('layer_num', type=int, default=1, help='number of layers')
-    parser.add_argument('seq_len', type=int, default=1024, help='sequence length')
-    parser.add_argument('head_num', type=int, default=16, help='head number')
-    parser.add_argument('head_size', type=int, default=32, help='size per head')
+    parser.add_argument('batch_size', type=int, default=1, help='batch size')
+    parser.add_argument('layer_num', type=int, default=12, help='number of layers')
+    parser.add_argument('seq_len', type=int, default=64, help='sequence length')
+    parser.add_argument('head_num', type=int, default=12, help='head number')
+    parser.add_argument('head_size', type=int, default=64, help='size per head')
     parser.add_argument('--avg_seq_len', type=int, default=-1, metavar='NUMBER', help='average sequence length (default: -1)')
     args = parser.parse_args()
     bert_example(vars(args))

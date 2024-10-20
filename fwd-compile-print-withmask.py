@@ -1,13 +1,9 @@
-# 2024.9.17 Tue.
-# 
-# attn-compile-print延伸 打印fwd过程中哪些部分被选择融合在了一起；
-# 代码基准基于 fwd-diff-mode-diff 的不同模式设定
-# 没有 mask，只是为了看在这种前向的组合下 融合策略情况
+# 2024.10.19 Sat.
 #
 # python fwd-compile-print.py
 # 
 # 打印 更多融合debug信息和依赖图svg
-# TORCH_LOGS=fusion TORCH_COMPILE_DEBUG=1 INDUCTOR_ORIG_FX_SVG=1 INDUCTOR_POST_FUSION_SVG=1 python fwd-compile-print.py
+# TORCH_LOGS=fusion TORCH_COMPILE_DEBUG=1 INDUCTOR_ORIG_FX_SVG=1 INDUCTOR_POST_FUSION_SVG=1 python fwd-compile-print-withmask.py
 
 import torch
 import numpy as np
@@ -32,6 +28,7 @@ def fwd_bert_std():
     # ------------------------------------------------------------- Attention start
     # (B, H, S, W) @ (B, H, W, S) -> (B, H, S, S) -softmax-> (B, H, S, S)
     scores = torch.matmul(q, k.transpose(-2, -1)) / (head_size ** .5)
+    scores -= 10000.0 * (1.0 - mask.unsqueeze(1))  
     probs = F.softmax(scores, dim=-1)
     # (B, H, S, S) @ (B, H, S, W) -> (B, H, S, W) -trans-> (B, S, H, W)
     h = torch.matmul(probs, v)
@@ -47,8 +44,7 @@ def fwd_bert_std():
     hidden_states = hidden_states + input_tensor  # 残差连接
     
     # layer_Norm
-    hidden_states = F.layer_norm(hidden_states, (hidden_dim, ),
-                                weight=attr_output_layernorm_gamma[layer], bias=attr_output_layernorm_beta[layer])
+    hidden_states = F.layer_norm(hidden_states, (hidden_dim, ), weight=attr_output_layernorm_gamma[layer], bias=attr_output_layernorm_beta[layer])
     
     residual = hidden_states       # 为残差连接做好准备
     #FFN GEMM 1 + add bias 
@@ -59,8 +55,7 @@ def fwd_bert_std():
     hidden_states = hidden_states + residual  #残差连接
 
     # layer_Norm
-    hidden_states = F.layer_norm(hidden_states, (hidden_dim, ),  
-                                weight=output_layernorm_gamma[layer], bias=output_layernorm_beta[layer])  
+    hidden_states = F.layer_norm(hidden_states, (hidden_dim, ),  weight=output_layernorm_gamma[layer], bias=output_layernorm_beta[layer])  
     transformer_output[layer] = hidden_states
         
         
@@ -85,6 +80,20 @@ if __name__ == '__main__':
     running_iters = config.RUNNING_TIME
     dtype = config.DATA_TYPE
     
+    # 4类Atom mask叠加组合成5种Mask
+    avg_seq_len = seq_len
+    low, high = (2 * avg_seq_len - seq_len, seq_len + 1)
+    input_lens = torch.randint(low=low, high=high, size=(batch_size,))
+    seqlen_mask = seqlen_to_mask(input_lens, seq_len)
+    attr_mask   = set_dtype(torch.tile(seqlen_mask, dims=(seq_len,)).reshape(batch_size, seq_len, seq_len).cuda(), dtype)
+    
+    lower_triangle_mask = generate_triangle_mask(attr_mask).cuda()
+    strided_mask = generate_strided_mask(attr_mask).cuda()
+    fixed_mask = generate_fixed_mask(attr_mask).cuda()
+    
+    mask = lower_triangle_mask
+    
+    
     input_from_tensor           = set_dtype(torch.empty(batch_size, seq_len, hidden_dim).uniform_(-0.4, 0.4).cuda(), dtype)
     qkv_kernel                  = [set_dtype(torch.zeros(hidden_dim, hidden_dim * 3).uniform_(-0.4, 0.4).cuda(), dtype) for _ in range(layer_num)]
     qkv_bias                    = [set_dtype(torch.zeros(hidden_dim * 3).uniform_(-0.4, 0.4).cuda(), dtype) for _ in range(layer_num)]
@@ -107,24 +116,17 @@ if __name__ == '__main__':
     torch._inductor.config.trace.enabled = True
     
     # torch.compile --- mode:default
-    # torch._dynamo.reset()
-    # fwd_compile_default = torch.compile(fwd_bert_std, mode="default")
-    # fwd_compile_default()
+    torch._dynamo.reset()
+    fwd_compile_default = torch.compile(fwd_bert_std, mode="default")
+    fwd_compile_default()
+    
     
     # torch.compile --- mode:max-autotune
     # torch._dynamo.reset()
     # fwd_compile_autotune = torch.compile(fwd_bert_std, mode="max-autotune")
     # fwd_compile_autotune()
         
-    # torch.compile --- mode:reduce-overhead
-    torch._dynamo.reset()
-    fwd_compile_reduce = torch.compile(fwd_bert_std, mode="reduce-overhead")
-    fwd_compile_reduce()
-    
-    # torch.compile --- mode:default + fullgraph
-    # torch._dynamo.reset()
-    # fwd_compile_fullgraph = torch.compile(fwd_bert_std, fullgraph=True)
-    # fwd_compile_fullgraph()
+
 
     
     

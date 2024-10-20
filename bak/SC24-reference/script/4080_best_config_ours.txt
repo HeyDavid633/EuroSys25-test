@@ -1,0 +1,15 @@
+Mask_id:1 	Seqlen:64 	Global Min Time:11.211	Global best Config: 41200
+Mask_id:1 	Seqlen:128 	Global Min Time:23.301	Global best Config: 33407
+Mask_id:1 	Seqlen:256 	Global Min Time:46.815	Global best Config: 41149
+Mask_id:1 	Seqlen:384 	Global Min Time:77.929	Global best Config: 41119
+Mask_id:1 	Seqlen:512 	Global Min Time:110.27	Global best Config: 41102
+Mask_id:1 	Seqlen:768 	Global Min Time:180.907	Global best Config: 41188
+Mask_id:1 	Seqlen:1024 Global Min Time:267.595	Global best Config: 41115
+
+Mask_id:2 	Seqlen:64 	Global Min Time:11.125	Global best Config: 41200
+Mask_id:2 	Seqlen:128 	Global Min Time:22.981	Global best Config: 41123 / 33407
+Mask_id:2 	Seqlen:256 	Global Min Time:45.798	Global best Config: 41102
+Mask_id:2 	Seqlen:384 	Global Min Time:76.604	Global best Config: 41089
+Mask_id:2 	Seqlen:512 	Global Min Time:107.934	Global best Config: 41183
+Mask_id:2 	Seqlen:768 	Global Min Time:175.195	Global best Config: 41119
+Mask_id:2 	Seqlen:1024 Global Min Time:258.501	Global best Config: 41088

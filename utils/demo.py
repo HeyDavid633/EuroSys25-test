@@ -69,8 +69,8 @@ def atomic_d_block(attr_mask, block_size = 2):
             end = start + block_size
             block_mask[batch, start:end, start:end] = 1
             
-    for i in range(seq_len-1):
-        block_mask[:, i, i+1:] = 0
+    #for i in range(seq_len-1):
+    #    block_mask[:, i, i+1:] = 0
 
     return block_mask
 
@@ -87,7 +87,8 @@ def calculate_sparsity(matrix):
 
 # 测试代码
 attr_mask = torch.zeros((1, 1024, 1024))  # 2个批次，序列长度为5
-result = atomic_d_block(attr_mask)
+#result = atomic_b_band(attr_mask, 32)
+result = atomic_a_global(attr_mask, 32)
 print(result)
 
 # 计算result矩阵的稀疏度

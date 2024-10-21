@@ -16,17 +16,18 @@ bs:16	| seqlen:1024	| 4.57 ms / iter
 bs:16	| seqlen:2048	| 24.62 ms / iter
 bs:16	| seqlen:4096	| 83.29 ms / iter
 Flash-Attn time cost:
-bs:8	| seqlen:128	| 0.075 ms / iter
-bs:8	| seqlen:256	| 0.073 ms / iter
-bs:8	| seqlen:512	| 0.070 ms / iter
-bs:8	| seqlen:1024	| 0.193 ms / iter
-bs:8	| seqlen:2048	| 0.729 ms / iter
-bs:8	| seqlen:4096	| 2.764 ms / iter
-bs:8	| seqlen:8192	| 10.688 ms / iter
-bs:16	| seqlen:128	| 0.072 ms / iter
-bs:16	| seqlen:256	| 0.069 ms / iter
-bs:16	| seqlen:512	| 0.114 ms / iter
-bs:16	| seqlen:1024	| 0.395 ms / iter
-bs:16	| seqlen:2048	| 1.439 ms / iter
-bs:16	| seqlen:4096	| 5.547 ms / iter
-bs:16	| seqlen:8192	| 21.237 ms / iter
+bs:8	| seqlen:128	| 0.141 ms / iter
+bs:8	| seqlen:256	| 0.137 ms / iter
+bs:8	| seqlen:512	| 0.131 ms / iter
+bs:8	| seqlen:1024	| 0.363 ms / iter
+bs:8	| seqlen:2048	| 1.373 ms / iter
+bs:8	| seqlen:4096	| 5.199 ms / iter
+bs:8	| seqlen:8192	| 20.084 ms / iter
+bs:16	| seqlen:128	| 0.136 ms / iter
+bs:16	| seqlen:256	| 0.130 ms / iter
+bs:16	| seqlen:512	| 0.214 ms / iter
+bs:16	| seqlen:1024	| 0.743 ms / iter
+bs:16	| seqlen:2048	| 2.706 ms / iter
+bs:16	| seqlen:4096	| 10.433 ms / iter
+bs:16	| seqlen:8192	| 39.942 ms / iter
+

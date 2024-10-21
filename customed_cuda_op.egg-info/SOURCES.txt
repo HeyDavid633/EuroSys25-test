@@ -11,3 +11,11 @@ ops/src/cutlass_00_basic_gemm.cpp
 ops/src/cutlass_00_basic_gemm_cuda.cu
 ops/src/cutlass_05_batched_gemm.cpp
 ops/src/cutlass_05_batched_gemm_cuda.cu
+ops/src/syncfree_band_attn.cpp
+ops/src/syncfree_band_attn_cuda.cu
+ops/src/syncfree_dilated_attn.cpp
+ops/src/syncfree_dilated_attn_cuda.cu
+ops/src/syncfree_fixed_attn.cpp
+ops/src/syncfree_fixed_attn_cuda.cu
+ops/src/syncfree_strided_attn.cpp
+ops/src/syncfree_strided_attn_cuda.cu

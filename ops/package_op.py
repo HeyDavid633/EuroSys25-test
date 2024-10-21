@@ -1,9 +1,10 @@
 import torch
 from torch.autograd import Function
 import cutlass_00_basic_gemm, cutlass_05_batched_gemm
+import syncfree_strided_attn, syncfree_fixed_attn, syncfree_band_attn, syncfree_dilated_attn
 # import cutlass_12_gemm_bias_relu, cutlass_35_gemm_softmax
 
-__all__ = ['cutlass_00_basic_gemm_op', 'cutlass_05_batched_gemm_op']
+__all__ = ['cutlass_00_basic_gemm_op', 'cutlass_05_batched_gemm_op', 'syncfree_strided_attn_op', 'syncfree_fixed_attn_op', 'syncfree_band_attn_op', 'syncfree_dilated_attn_op']
 
 class Cutlass_00_Basic_Gemm(Function):
     
@@ -54,6 +55,70 @@ class Cutlass_05_batched_Gemm(Function):
         return mat_C
 
 
+# Q(B, H, S, W)
+# result.shape = {batch_size, seq_len, head_num * head_size}
+class Syncfree_Strided_Attn(Function):
+    
+    @staticmethod
+    def forward(ctx, q, k, v):  
+        batch_size = q.size(0)
+        hidden_dim = q.size(1) * q.size(-1)
+        seq_len = q.size(-2)
+        result = torch.zeros((batch_size, seq_len, hidden_dim), device=q.device, dtype=q.dtype)
+        
+        syncfree_strided_attn.forward(q.contiguous(), k.contiguous(), v.contiguous(), result)
+        ctx.mark_non_differentiable(result)
+        
+        return result
+    
+class Syncfree_Fixed_Attn(Function):
+    
+    @staticmethod
+    def forward(ctx, q, k, v):  
+        batch_size = q.size(0)
+        hidden_dim = q.size(1) * q.size(-1)
+        seq_len = q.size(-2)
+        result = torch.zeros((batch_size, seq_len, hidden_dim), device=q.device, dtype=q.dtype)
+        
+        syncfree_fixed_attn.forward(q.contiguous(), k.contiguous(), v.contiguous(), result)
+        ctx.mark_non_differentiable(result)
+        
+        return result
+    
+class Syncfree_Band_Attn(Function):
+    
+    @staticmethod
+    def forward(ctx, q, k, v):  
+        batch_size = q.size(0)
+        hidden_dim = q.size(1) * q.size(-1)
+        seq_len = q.size(-2)
+        result = torch.zeros((batch_size, seq_len, hidden_dim), device=q.device, dtype=q.dtype)
+        
+        syncfree_band_attn.forward(q.contiguous(), k.contiguous(), v.contiguous(), result)
+        ctx.mark_non_differentiable(result)
+        
+        return result
+    
+class Syncfree_Dilated_Attn(Function):
+    
+    @staticmethod
+    def forward(ctx, q, k, v):  
+        batch_size = q.size(0)
+        hidden_dim = q.size(1) * q.size(-1)
+        seq_len = q.size(-2)
+        result = torch.zeros((batch_size, seq_len, hidden_dim), device=q.device, dtype=q.dtype)
+        
+        syncfree_dilated_attn.forward(q.contiguous(), k.contiguous(), v.contiguous(), result)
+        ctx.mark_non_differentiable(result)
+        
+        return result
+
 cutlass_00_basic_gemm_op = Cutlass_00_Basic_Gemm.apply
 cutlass_05_batched_gemm_op = Cutlass_05_batched_Gemm.apply
+
+syncfree_strided_attn_op = Syncfree_Strided_Attn.apply
+syncfree_fixed_attn_op = Syncfree_Fixed_Attn.apply
+syncfree_band_attn_op = Syncfree_Band_Attn.apply
+syncfree_dilated_attn_op = Syncfree_Dilated_Attn.apply
+
 

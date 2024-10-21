@@ -1,3 +1,7 @@
 cutlass_00_basic_gemm
 cutlass_05_batched_gemm
 ops
+syncfree_band_attn
+syncfree_dilated_attn
+syncfree_fixed_attn
+syncfree_strided_attn

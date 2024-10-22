@@ -83,7 +83,7 @@ if __name__ == '__main__':
     running_iters = config.RUNNING_TIME
     dtype = config.DATA_TYPE
     
-    for batch_test in [16]:
+    for batch_test in [8, 16]:
         batch_size = batch_test
         for seqlen_test in [128, 256, 512, 1024, 2048]: # 4096 8192 的时候TVM爆了
             seq_len = seqlen_test

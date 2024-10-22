@@ -1,0 +1,47 @@
+ PyTorch version: 2.5.0a0+b465a5843b.nv24.09
+ CUDA version   : 12.6
+ GPU cuda:(0)   : Tesla V100-PCIE-32GB 
+--------------------------------------------------
+ Naive  PyTorch | bs:8   | seqlen:128    | 2.69  ms / iter
+ Naive  PyTorch | bs:8   | seqlen:256    | 2.58  ms / iter
+ Naive  PyTorch | bs:8   | seqlen:512    | 4.43  ms / iter
+ Naive  PyTorch | bs:8   | seqlen:1024   | 13.67 ms / iter
+ Naive  PyTorch | bs:8   | seqlen:2048   | 48.02 ms / iter
+ Naive  PyTorch | bs:16  | seqlen:128    | 2.64  ms / iter
+ Naive  PyTorch | bs:16  | seqlen:256    | 3.11  ms / iter
+ Naive  PyTorch | bs:16  | seqlen:512    | 8.41  ms / iter
+ Naive  PyTorch | bs:16  | seqlen:1024   | 27.11 ms / iter
+ Naive  PyTorch | bs:16  | seqlen:2048   | 113.61 ms / iter
+
+ Torch Autotune | bs:8   | seqlen:128    | 0.32  ms / iter
+ Torch Autotune | bs:8   | seqlen:256    | 0.47  ms / iter
+ Torch Autotune | bs:8   | seqlen:512    | 1.06  ms / iter
+ Torch Autotune | bs:8   | seqlen:1024   | 2.88  ms / iter
+ Torch Autotune | bs:8   | seqlen:2048   | 8.83  ms / iter
+ Torch Autotune | bs:16  | seqlen:128    | 0.41  ms / iter
+ Torch Autotune | bs:16  | seqlen:256    | 0.88  ms / iter
+ Torch Autotune | bs:16  | seqlen:512    | 1.88  ms / iter
+ Torch Autotune | bs:16  | seqlen:1024   | 5.40  ms / iter
+ Torch Autotune | bs:16  | seqlen:2048   | 17.83 ms / iter
+
+ TVM as Backend | bs:8   | seqlen:128	 | 1.77	ms / iter
+ TVM as Backend | bs:8   | seqlen:256	 | 2.96	ms / iter
+ TVM as Backend | bs:8   | seqlen:512	 | 6.65	ms / iter
+ TVM as Backend | bs:8   | seqlen:1024	 | 36.71 ms / iter
+ TVM as Backend | bs:8   | seqlen:2048   | 158.39 ms / iter
+ TVM as Backend | bs:16  | seqlen:128	 | 2.38	ms / iter
+ TVM as Backend | bs:16  | seqlen:256	 | 4.70	ms / iter
+ TVM as Backend | bs:8   | seqlen:512	 | 20.18 ms / iter
+ TVM as Backend | bs:8   | seqlen:1024	 | 76.97 ms / iter
+ TVM as Backend | bs:8   | seqlen:2048   | 334.16 ms / iter
+ 
+strided fusion | bs:8   | seqlen:128	| 0.46	ms / iter
+strided fusion | bs:8	| seqlen:256	| 0.42	ms / iter
+strided fusion | bs:8	| seqlen:512	| 1.06	ms / iter
+strided fusion | bs:8	| seqlen:1024	| 2.83	ms / iter
+strided fusion | bs:8	| seqlen:2048	| 8.48	ms / iter
+strided fusion | bs:16	| seqlen:128	| 0.42	ms / iter
+strided fusion | bs:16	| seqlen:256	| 0.68	ms / iter
+strided fusion | bs:16	| seqlen:512	| 1.79	ms / iter
+strided fusion | bs:16	| seqlen:1024	| 5.39	ms / iter
+strided fusion | bs:16	| seqlen:2048	| 17.70	ms / iter

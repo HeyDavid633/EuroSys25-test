@@ -1,0 +1,35 @@
+ PyTorch version: 2.5.0a0+b465a5843b.nv24.09
+ CUDA version   : 12.6
+ GPU cuda:(0)   : Tesla V100-PCIE-32GB 
+--------------------------------------------------
+Attn base time cost:
+bs:8    | seqlen:128    | 0.24 ms / iter
+bs:8    | seqlen:256    | 0.32 ms / iter
+bs:8    | seqlen:512    | 1.02 ms / iter
+bs:8    | seqlen:1024   | 3.84 ms / iter
+bs:8    | seqlen:2048   | 19.68 ms / iter
+bs:8    | seqlen:4096   | 67.27 ms / iter
+bs:8	| seqlen:8192	| OOM
+bs:16   | seqlen:128    | 0.25 ms / iter
+bs:16   | seqlen:256    | 0.55 ms / iter
+bs:16   | seqlen:512    | 1.89 ms / iter
+bs:16   | seqlen:1024   | 7.49 ms / iter
+bs:16   | seqlen:2048   | 39.54 ms / iter
+bs:16   | seqlen:4096   | 134.45 ms / iter
+bs:16	| seqlen:8192	| OOM
+
+My Dilated Attn time cost:
+bs:8	| seqlen:128	| 0.094 ms / iter
+bs:8	| seqlen:256	| 0.114 ms / iter
+bs:8	| seqlen:512	| 0.257 ms / iter
+bs:8	| seqlen:1024	| 0.688 ms / iter
+bs:8	| seqlen:2048	| 2.054 ms / iter
+bs:8	| seqlen:4096	| 6.159 ms / iter
+bs:8	| seqlen:8192	| 21.437 ms / iter
+bs:16	| seqlen:128	| 0.095 ms / iter
+bs:16	| seqlen:256	| 0.183 ms / iter
+bs:16	| seqlen:512	| 0.438 ms / iter
+bs:16	| seqlen:1024	| 1.210 ms / iter
+bs:16	| seqlen:2048	| 3.661 ms / iter
+bs:16	| seqlen:4096	| 12.249 ms / iter
+bs:16	| seqlen:8192	| 42.773 ms / iter
